@@ -8,9 +8,7 @@ import com.example.Entities.User;
 
 import java.util.List;
 
-/**
- * Created by God Emperor on 15/08/2017.
- */
+
 public interface TweetService {
 
 

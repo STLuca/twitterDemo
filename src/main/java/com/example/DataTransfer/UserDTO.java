@@ -8,11 +8,11 @@ import static org.junit.Assert.assertTrue;
 
 public class UserDTO {
 
-    private Long id;
-    private String username;
-    private int numOfTweets;
-    private int numOfFollowers;
-    private int numOfFollowing;
+    private final Long id;
+    private final String username;
+    private final int numOfTweets;
+    private final int numOfFollowers;
+    private final int numOfFollowing;
 
 
     public UserDTO(Long id, String username, int tweets, int followers,  int following) {

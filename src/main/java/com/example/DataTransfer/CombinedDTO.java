@@ -2,13 +2,11 @@ package com.example.DataTransfer;
 
 import java.util.List;
 
-/**
- * Created by God Emperor on 28/08/2017.
- */
+
 public class CombinedDTO {
 
-    List<UserDTO> users;
-    List<TweetDTO> tweets;
+    private final List<UserDTO> users;
+    private final List<TweetDTO> tweets;
 
     public CombinedDTO(List<UserDTO> users, List<TweetDTO> tweets) {
         this.users = users;

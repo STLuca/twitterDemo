@@ -7,9 +7,7 @@ import com.example.Entities.User;
 
 import java.util.List;
 
-/**
- * Created by God Emperor on 14/08/2017.
- */
+
 public interface UserService {
 
     UserDTO getUser(String username);

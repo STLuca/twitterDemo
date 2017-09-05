@@ -14,14 +14,12 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-/**
- * Created by God Emperor on 18/08/2017.
- */
+
 @Service
 @Transactional
 public class FeedServiceImp implements FeedService{
 
-    private static final Long DAY_IN_MS = new Long(1000 * 60 * 60 * 24);
+    private static final long DAY_IN_MS = 1000 * 60 * 60 * 24;
 
     @Autowired
     private JpaTweetRepository tweetRepository;

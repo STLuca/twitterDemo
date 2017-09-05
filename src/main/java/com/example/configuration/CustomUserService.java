@@ -13,9 +13,7 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Created by God Emperor on 03/07/2017.
- */
+
 @Service
 public class CustomUserService implements UserDetailsService {
 
@@ -30,7 +28,7 @@ public class CustomUserService implements UserDetailsService {
     public UserDetails loadUserByUsername(String s) throws UsernameNotFoundException {
 
         User user = userRepository.findByUsername(s);
-        List<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>();
+        List<GrantedAuthority> authorities = new ArrayList<>();
         authorities.add(new SimpleGrantedAuthority("ROLE_USER"));
 
         return new CustomUser(user.getId(), user.getUsername(), user.getPassword(), authorities);

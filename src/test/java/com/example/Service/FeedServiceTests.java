@@ -14,9 +14,7 @@ import java.util.List;
 
 import static org.mockito.Mockito.when;
 
-/**
- * Created by God Emperor on 31/08/2017.
- */
+
 public class FeedServiceTests {
 
     private static final Long DAY_IN_MS = new Long(1000 * 60 * 60 * 24);

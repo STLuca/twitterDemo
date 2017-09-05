@@ -5,13 +5,13 @@ import java.util.Date;
 
 public class TweetDTO {
 
-    private Long id;
-    private Long userID;
-    private String message;
-    private Date timestamp;
-    private Long replyTo;
-    private int numOfLikes;
-    private int numOfReplies;
+    private final Long id;
+    private final Long userID;
+    private final String message;
+    private final Date timestamp;
+    private final Long replyTo;
+    private final int numOfLikes;
+    private final int numOfReplies;
 
     public TweetDTO(Long id, Long userID, String message, Date timestamp, Long replyTo, int likes, int replies) {
 
