@@ -4,6 +4,7 @@ import com.example.DataTransfer.TweetDTO;
 import com.example.DataTransfer.UserDTO;
 import com.example.dao.JpaTweetRepository;
 import com.example.dao.JpaUserRepository;
+import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -32,6 +33,7 @@ public class FeedServiceTests {
     private List<UserDTO> userDTOList = new ArrayList<>();
     private List<TweetDTO> tweetDTOList = new ArrayList<>();
 
+    @Before
     public void init(){
         userDTOList.add(new UserDTO(new Long(1), "bob", 5, 2, 2));
         userDTOList.add(new UserDTO(new Long(2), "adam", 5, 2, 2));

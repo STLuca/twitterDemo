@@ -112,5 +112,7 @@ public class TweetServiceImp implements TweetService{
 
     private Set<Long> getUserIDsFromTweets(List<TweetDTO> tweets){
         return tweets.stream().map(TweetDTO::getUserID).collect(Collectors.toSet());
+        //int x = 5;
+        //return ids;
     }
 }

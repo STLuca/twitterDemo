@@ -41,7 +41,7 @@ public class TweetRepositoryImp implements JpaTweetRepository{
         em.remove(tweet);
     }
 
-    @Override
+    /*@Override
     public List<TweetDTO> getTweet(Long tweetID) {
         String qs = "\n" +
                 "SELECT     t.id                            ID,                         \n" +
@@ -57,6 +57,17 @@ public class TweetRepositoryImp implements JpaTweetRepository{
                 "       LEFT JOIN likes   l     ON t.id = l.tweet_id                    \n" +
                 "   WHERE   t.id = :tweetID                                             \n" +
                 "   GROUP BY t.id                                                       \n";
+        Query query = em.createNativeQuery(qs, "TweetDTOMapping")
+                .setParameter("tweetID", tweetID);
+        return query.getResultList();
+
+    }*/
+
+    @Override
+    public List<TweetDTO> getTweet(Long tweetID) {
+        String qs = "\n" +
+                "SELECT * from tweetSummary t            \n" +
+                "   WHERE   t.id = :tweetID             \n";
         Query query = em.createNativeQuery(qs, "TweetDTOMapping")
                 .setParameter("tweetID", tweetID);
         return query.getResultList();

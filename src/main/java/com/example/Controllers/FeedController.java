@@ -27,7 +27,7 @@ public class FeedController {
 
     @GetMapping(value = "/liked/")
     public CombinedDTO getLikedTweets(@AuthenticationPrincipal CustomUser user,
-                                      @RequestParam(name = "t") int dayLimit,
+                                      @RequestParam(name = "t", required = false, defaultValue = "1") int dayLimit,
                                       @RequestParam(name = "page", required = false, defaultValue = "0") Integer page,
                                       @RequestParam(name = "count", required = false, defaultValue = "20") Integer count){
         return feedService.getMostLikedFeed(user.getUserID(), dayLimit, page, count);
@@ -35,7 +35,7 @@ public class FeedController {
 
     @GetMapping(value = "/replied/")
     public CombinedDTO getRepliedTweets(@AuthenticationPrincipal CustomUser user,
-                                        @RequestParam(name = "t") int dayLimit,
+                                        @RequestParam(name = "t", required = false, defaultValue = "1") int dayLimit,
                                         @RequestParam(name = "page", required = false, defaultValue = "0") Integer page,
                                         @RequestParam(name = "count", required = false, defaultValue = "20") Integer count){
         return feedService.getMostRepliedFeed(user.getUserID(), dayLimit, page, count);

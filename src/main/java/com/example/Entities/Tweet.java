@@ -47,16 +47,16 @@ public class Tweet {
     private Tweet repliedTo;
 
     //@JsonIgnore
-    @OneToMany(mappedBy = "repliedTo")
+    @OneToMany(mappedBy = "repliedTo", orphanRemoval = true)
     @LazyCollection(LazyCollectionOption.EXTRA)
     private List<Tweet> replies = new ArrayList<>();
 
-    @OneToMany(mappedBy = "tweetLiked", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "tweetLiked", cascade = CascadeType.PERSIST, orphanRemoval = true)
     @LazyCollection(LazyCollectionOption.EXTRA)
     private Set<Like> likedBy = new HashSet<>();
 
     //constructors
-    public Tweet(){};
+    public Tweet(){}
     public Tweet(User user, String message){
         this.user = user;
         this.message = message;
@@ -70,7 +70,7 @@ public class Tweet {
         return tweet;
     }
 
-    //helper methods
+    /*helper methods
     public void addLike(User user){
         Like like = new Like(user, this);
         getLikedBy().add(like);
@@ -78,7 +78,7 @@ public class Tweet {
 
     public void removeLike(User user){
         getLikedBy().remove(user);
-    }
+    }*/
 
     //getters and setters
     public long getId() {
@@ -138,7 +138,7 @@ public class Tweet {
         if (o == this){return true;}
         if (!(o instanceof Tweet)){return false;}
         Tweet tweet = (Tweet) o;
-        return tweet.id == this.id;
+        return tweet.id.equals(this.id);
     }
 
     @Override

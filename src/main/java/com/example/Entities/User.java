@@ -48,21 +48,19 @@ public class User implements Serializable {
     @NotNull
     private String password;
 
-    @JsonIgnore
-    @OneToMany
-    @JoinColumn(name = "USER_ID")
+    @OneToMany(orphanRemoval = true, mappedBy = "user")
     @LazyCollection(LazyCollectionOption.EXTRA)
     private List<Tweet> myTweets = new ArrayList<>();
 
-    @OneToMany(mappedBy = "follower", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "follower", cascade = CascadeType.PERSIST, orphanRemoval = true)
     @LazyCollection(LazyCollectionOption.EXTRA)
     private Set<Follow> following = new HashSet<>();
 
-    @OneToMany(mappedBy = "followee", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "followee", cascade = CascadeType.PERSIST, orphanRemoval = true)
     @LazyCollection(LazyCollectionOption.EXTRA)
     private Set<Follow> followers = new HashSet<>();
 
-    @OneToMany(mappedBy = "likedBy", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "likedBy", cascade = CascadeType.PERSIST, orphanRemoval = true)
     @LazyCollection(LazyCollectionOption.EXTRA)
     private Set<Like> likes = new HashSet<>();
 
@@ -99,8 +97,9 @@ public class User implements Serializable {
     }
 
     public void unlikeTweet(Tweet tweet){
-        if (likes.contains(tweet)){
-            getLikes().remove(tweet);
+        Like like = new Like(this, tweet);
+        if (likes.contains(like)){
+            getLikes().remove(like);
         }
     }
 
@@ -172,7 +171,7 @@ public class User implements Serializable {
         if (o == this){return true;}
         if (!(o instanceof User)){return false;}
         User user = (User) o;
-        return user.username.equals(this.username);
+        return user.getId().equals(this.getId());
     }
 
     @Override

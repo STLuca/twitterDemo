@@ -36,7 +36,10 @@ public class UserController {
     @DeleteMapping(value = "/{username}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteUser(@PathVariable String username, @AuthenticationPrincipal CustomUser customUser){
-        userService.deleteUser(customUser.getUserID());
+        if (customUser.getUsername().equals(username)){
+            userService.deleteUser(customUser.getUserID());
+        }
+
     }
 
     @GetMapping(value = "{username}/tweets/recent/")
@@ -48,7 +51,7 @@ public class UserController {
 
     @GetMapping(value = "{username}/tweets/liked/")
     public List<TweetDTO> userLikedTweets(@PathVariable String username,
-                                       @RequestParam(name = "t") int dayLimit,
+                                       @RequestParam(name = "t", required = false, defaultValue = "1") int dayLimit,
                                        @RequestParam(name = "page", required = false, defaultValue = "0") int page,
                                        @RequestParam(name = "count", required = false, defaultValue = "20") int count){
         return userService.getMostLikedTweetsByUser(username, dayLimit, page, count);
@@ -56,7 +59,7 @@ public class UserController {
 
     @GetMapping(value = "{username}/tweets/replied/")
     public List<TweetDTO> userRepliedTweets(@PathVariable String username,
-                                         @RequestParam(name = "t") int dayLimit,
+                                         @RequestParam(name = "t", required = false, defaultValue = "1") int dayLimit,
                                          @RequestParam(name = "page", required = false, defaultValue = "0") int page,
                                          @RequestParam(name = "count", required = false, defaultValue = "20") int count){
         return userService.getMostRepliedTweetsByUser(username, dayLimit, page, count);

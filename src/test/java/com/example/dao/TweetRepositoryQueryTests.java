@@ -8,8 +8,10 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
@@ -290,7 +292,7 @@ public class TweetRepositoryQueryTests {
         ids.add(userTwo.getId());
         ids.add(userThree.getId());
 
-        Date date = new Date(tweets.get(0).getCreationTimestamp().getTime() + 101);
+        Date date = new Date(tweets.get(0).getCreationTimestamp().getTime() + 500);
 
         List<TweetDTO> responseDTOs = tweetRepository.getMostLikedTweetsByUsers(ids, date, 0, 20);
         assertEquals(responseDTOs.size(), 3);
@@ -305,7 +307,7 @@ public class TweetRepositoryQueryTests {
         ids.add(userOne.getId());
         ids.add(userTwo.getId());
 
-        Date date = new Date(tweets.get(0).getCreationTimestamp().getTime() + 101);
+        Date date = new Date(tweets.get(0).getCreationTimestamp().getTime() + 500);
 
         List<TweetDTO> responseDTOs = tweetRepository.getMostRepliedTweetsByUsers(ids, date, 0, 20);
         assertEquals(responseDTOs.size(), 2);

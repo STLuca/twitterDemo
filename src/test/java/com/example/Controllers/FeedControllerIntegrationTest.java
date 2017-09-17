@@ -4,71 +4,208 @@ import com.example.DataTransfer.CombinedDTO;
 import com.example.DataTransfer.TweetDTO;
 import com.example.DataTransfer.UserDTO;
 import com.example.Service.FeedService;
+import com.example.TestConfig.CustomUserDetailsService;
 import com.example.configuration.CustomUser;
-import com.example.configuration.myWebConfiguration;
 import org.junit.Before;
+import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.springframework.security.core.GrantedAuthority;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Import;
+import org.springframework.http.MediaType;
+import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.context.web.WebAppConfiguration;
-import org.springframework.test.web.servlet.*;
+import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-
+import org.springframework.web.context.WebApplicationContext;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
+import static org.springframework.security.test.web.servlet.response.SecurityMockMvcResultMatchers.authenticated;
+import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 
-@ContextConfiguration(classes = {myWebConfiguration.class})
-@WebAppConfiguration
 @RunWith(SpringJUnit4ClassRunner.class)
+//@ContextConfiguration(classes = CustomUserDetailsService.class)
+@Import(value = CustomUserDetailsService.class)
+@WebMvcTest(value = FeedController.class)
 public class FeedControllerIntegrationTest {
 
-    @Mock
-    FeedService feedService;
+    @MockBean
+    private FeedService feedService;
 
+    @Autowired
+    private WebApplicationContext context;
+
+    @Autowired
+    private UserDetailsService customUserService = new CustomUserDetailsService();
 
     private MockMvc mockMvc;
 
-    private CustomUser userDetails;
-
-    private List<UserDTO> userDTO = new ArrayList<>();
-    private List<TweetDTO> tweetDTO = new ArrayList<>();
-
-    private CustomUser createCustomUser(Long id, String username){
-        List<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>();
-        authorities.add(new SimpleGrantedAuthority("ROLE_USER"));
-
-        return new CustomUser(id, username, "encryptedPassword", authorities);
-    }
+    private CombinedDTO dto;
 
     @Before
     public void init(){
 
+        this.mockMvc = MockMvcBuilders
+                .webAppContextSetup(context)
+                .alwaysDo(print())
+                .apply(springSecurity())
+                .build();
 
-
-        Long userID = new Long(1);
-        String username = "bob";
-
-        userDetails = createCustomUser(userID, "bob");
-        userDTO.add(new UserDTO(userID, "bob", 5, 2, 2));
-        tweetDTO.add(new TweetDTO(new Long(5), userID, "message by bob", null, null, 0, 0));
+        List<UserDTO> users = new ArrayList<>();
+        List<TweetDTO> tweets = new ArrayList<>();
+        users.add(new UserDTO(new Long(1), "Bob", 1, 2, 3));
+        tweets.add(new TweetDTO(new Long(2), new Long(1), "my tweet message", new Date(), null,1, 1));
+        dto = new CombinedDTO(users, tweets);
     }
 
-    public void testGetRecentTweets(){
-        when(feedService.getRecentFeed(new Long(1), 0, 20))
-                .thenReturn(new CombinedDTO(userDTO, tweetDTO));
+    @Test
+    @WithUserDetails(value = "bob")
+    public void testGetRecentFeedDefaultParameters() throws Exception{
 
-        //mockMvc.perform(
-          //      get("/feed/recent/").with(user(userDetails))
-        //).andExpect()
+        when(feedService.getRecentFeed( (new Long(1)), 0, 20))
+                .thenReturn(dto);
+
+        mockMvc.perform(get("/feed/recent/"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8))
+                .andExpect(jsonPath("$.users").isArray())
+                .andExpect(jsonPath("$.tweets").isArray());
+
     }
 
+    @Test
+    @WithUserDetails(value = "bob")
+    public void testGetRecentFeedCustomParameters() throws Exception{
 
+        when(feedService.getRecentFeed( (new Long(1)), 1, 10))
+                .thenReturn(dto);
+
+        mockMvc.perform(get("/feed/recent/")
+                            .param("page", "1")
+                            .param("count", "10"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8))
+                .andExpect(jsonPath("$.users").isArray())
+                .andExpect(jsonPath("$.tweets").isArray());
+
+    }
+
+    @Test
+    @WithUserDetails(value = "bob")
+    public void testGetLikedFeedDefaultParameters() throws Exception{
+
+        when(feedService.getMostLikedFeed( (new Long(1)), 1, 0, 20))
+                .thenReturn(dto);
+
+        mockMvc.perform(get("/feed/liked/"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8))
+                .andExpect(jsonPath("$.users").isArray())
+                .andExpect(jsonPath("$.tweets").isArray());
+
+    }
+
+    @Test
+    @WithUserDetails(value = "bob")
+    public void testGetLikedFeedCustomParameters() throws Exception{
+
+        when(feedService.getMostLikedFeed( (new Long(1)), 3, 1, 10))
+                .thenReturn(dto);
+
+        mockMvc.perform(get("/feed/liked/")
+                .param("t", "3")
+                .param("page", "1")
+                .param("count", "10"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8))
+                .andExpect(jsonPath("$.users").isArray())
+                .andExpect(jsonPath("$.tweets").isArray());
+
+    }
+
+    @Test
+    @WithUserDetails(value = "bob")
+    public void testGetRepliedFeedDefaultParameters() throws Exception{
+
+        when(feedService.getMostRepliedFeed( (new Long(1)), 1, 0, 20))
+                .thenReturn(dto);
+
+        mockMvc.perform(get("/feed/replied/"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8))
+                .andExpect(jsonPath("$.users").isArray())
+                .andExpect(jsonPath("$.tweets").isArray());
+
+    }
+
+    @Test
+    @WithUserDetails(value = "bob")
+    public void testGetRepliedFeedCustomParameters() throws Exception{
+
+        when(feedService.getMostRepliedFeed( (new Long(1)), 3, 1, 10))
+                .thenReturn(dto);
+
+        mockMvc.perform(get("/feed/replied/")
+                .param("page", "1")
+                .param("count", "10")
+                .param("t", "3"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8))
+                .andExpect(jsonPath("$.users").isArray())
+                .andExpect(jsonPath("$.tweets").isArray());
+
+    }
+
+    @Test
+    @WithUserDetails(value = "bob")
+    public void testGetLikesFeedDefaultParameters() throws Exception{
+
+        when(feedService.getLikesFeed( (new Long(1)), 0, 20))
+                .thenReturn(dto);
+
+        mockMvc.perform(get("/feed/likes/"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8))
+                .andExpect(jsonPath("$.users").isArray())
+                .andExpect(jsonPath("$.tweets").isArray());
+
+    }
+
+    @Test
+    @WithUserDetails(value = "bob")
+    public void testGetLikesFeedCustomParameters() throws Exception{
+
+        when(feedService.getLikesFeed( (new Long(1)), 1, 10))
+                .thenReturn(dto);
+
+        mockMvc.perform(get("/feed/likes/")
+                .param("page", "1")
+                .param("count", "10"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8))
+                .andExpect(jsonPath("$.users").isArray())
+                .andExpect(jsonPath("$.tweets").isArray());
+
+    }
 }
