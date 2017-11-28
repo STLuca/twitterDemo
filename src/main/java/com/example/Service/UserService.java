@@ -1,5 +1,6 @@
 package com.example.Service;
 
+import com.example.DataTransfer.CombinedDTO;
 import com.example.DataTransfer.TweetDTO;
 import com.example.DataTransfer.UserDTO;
 import com.example.Entities.Tweet;
@@ -17,16 +18,16 @@ public interface UserService {
 
     void followUser(Long userID, String followeeUsername);
     void unfollowUser(Long userID, String followeeUsername);
-    List<UserDTO> getFollowing(String username, boolean old, int page, int count);
-    List<UserDTO> getFollowers(String username, boolean old, int page, int count);
+    CombinedDTO getFollowing(String username, boolean old, int page, int count);
+    CombinedDTO getFollowers(String username, boolean old, int page, int count);
 
     void likeTweet(Long userID, Long tweetID);
     void unlikeTweet(Long userID, Long tweetID);
 
     //Returns list of tweets without user information, because only 1 user
-    List<TweetDTO> getRecentTweetsByUser(String username, int page, int count);
-    List<TweetDTO> getMostLikedTweetsByUser(String username, int withinDays, int page, int count);
-    List<TweetDTO> getMostRepliedTweetsByUser(String username, int withinDays, int page, int count);
+    CombinedDTO getRecentTweetsByUser(String username, boolean asc, int page, int count);
+    CombinedDTO getLikedTweetsByUser(String username, boolean asc, int withinDays, int page, int count);
+    CombinedDTO getRepliedTweetsByUser(String username, boolean asc, int withinDays, int page, int count);
 
-    List<TweetDTO> getUserLikes(String username, boolean old, int page, int count);
+    CombinedDTO getUserLikes(String username, boolean old, int page, int count);
 }

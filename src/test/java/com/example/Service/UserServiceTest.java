@@ -1,5 +1,6 @@
 package com.example.Service;
 
+import com.example.DataTransfer.CombinedDTO;
 import com.example.DataTransfer.TweetDTO;
 import com.example.DataTransfer.UserDTO;
 import com.example.Entities.User;
@@ -24,7 +25,7 @@ import static org.mockito.Mockito.when;
 
 @ContextConfiguration(classes = {BCryptPasswordEncoder.class})
 @RunWith(SpringJUnit4ClassRunner.class)
-public class UserServiceTests {
+public class UserServiceTest {
 
     @Mock
     private JpaUserRepository userRepository;
@@ -83,10 +84,10 @@ public class UserServiceTests {
 
         List<Long> ids = new ArrayList<>();
         ids.add(new Long(1));
-        when(tweetRepository.getRecentTweetsByUsers(ids,0, 20)).thenReturn(tweetsDTOList);
+        when(tweetRepository.getRecentTweetsByUsers(ids, false, 0, 20)).thenReturn(tweetsDTOList);
 
-        List<TweetDTO> tweets = userService.getRecentTweetsByUser("bob", 0, 20);
-        assertEquals(tweets, tweetsDTOList);
+        CombinedDTO tweets = userService.getRecentTweetsByUser("bob", false, 0, 20);
+        assertEquals(tweets.getTweets(), tweetsDTOList);
     }
 
 }

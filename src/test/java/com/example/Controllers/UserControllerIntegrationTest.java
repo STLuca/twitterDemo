@@ -1,5 +1,6 @@
 package com.example.Controllers;
 
+import com.example.DataTransfer.CombinedDTO;
 import com.example.DataTransfer.TweetDTO;
 import com.example.DataTransfer.UserDTO;
 import com.example.Service.UserService;
@@ -53,6 +54,7 @@ public class UserControllerIntegrationTest {
     private UserDTO testUserDTO;
     private Date testDate;
     private List<TweetDTO> tweetDTOs = new ArrayList<>();
+    private CombinedDTO tweetDTOContainer;
 
     @Before
     public void init(){
@@ -66,6 +68,7 @@ public class UserControllerIntegrationTest {
         testDate = new Date();
         testUserDTO = new UserDTO(new Long(1), "Bob", 1, 2, 3);
         tweetDTOs.add(new TweetDTO(new Long(2), new Long(1), "my tweet message", testDate, null,1, 1));
+        this.tweetDTOContainer = CombinedDTO.createFromTweets(tweetDTOs);
     }
 
     @Test
@@ -87,8 +90,8 @@ public class UserControllerIntegrationTest {
 
     @Test
     public void testGetUserRecentTweets() throws Exception{
-        when(userService.getRecentTweetsByUser(testUserDTO.getUsername(), 0, 20))
-                .thenReturn(tweetDTOs);
+        when(userService.getRecentTweetsByUser(testUserDTO.getUsername(), false, 0, 20))
+                .thenReturn(tweetDTOContainer);
         TweetDTO tweet = tweetDTOs.get(0);
 
 
@@ -107,8 +110,8 @@ public class UserControllerIntegrationTest {
 
     @Test
     public void testGetUserRecentTweetsWithParameters() throws Exception{
-        when(userService.getRecentTweetsByUser(testUserDTO.getUsername(), 1, 10))
-                .thenReturn(tweetDTOs);
+        when(userService.getRecentTweetsByUser(testUserDTO.getUsername(), false, 1, 10))
+                .thenReturn(tweetDTOContainer);
         TweetDTO tweet = tweetDTOs.get(0);
 
 
@@ -127,8 +130,8 @@ public class UserControllerIntegrationTest {
 
     @Test
     public void testGetUserLikedTweetsNoParameters() throws Exception{
-        when(userService.getMostLikedTweetsByUser(testUserDTO.getUsername(), 1, 0, 20))
-                .thenReturn(tweetDTOs);
+        when(userService.getLikedTweetsByUser(testUserDTO.getUsername(),false, 1, 0, 20))
+                .thenReturn(tweetDTOContainer);
         TweetDTO tweet = tweetDTOs.get(0);
 
 
@@ -147,8 +150,8 @@ public class UserControllerIntegrationTest {
 
     @Test
     public void testGetUserLikedTweetsWithParameters() throws Exception{
-        when(userService.getMostLikedTweetsByUser(testUserDTO.getUsername(), 3,1, 10))
-                .thenReturn(tweetDTOs);
+        when(userService.getLikedTweetsByUser(testUserDTO.getUsername(), false, 3,1, 10))
+                .thenReturn(tweetDTOContainer);
         TweetDTO tweet = tweetDTOs.get(0);
 
 
@@ -167,8 +170,8 @@ public class UserControllerIntegrationTest {
 
     @Test
     public void testGetUserRepliedTweets() throws Exception{
-        when(userService.getMostRepliedTweetsByUser(testUserDTO.getUsername(), 1,0, 20))
-                .thenReturn(tweetDTOs);
+        when(userService.getRepliedTweetsByUser(testUserDTO.getUsername(), false, 1,0, 20))
+                .thenReturn(tweetDTOContainer);
         TweetDTO tweet = tweetDTOs.get(0);
 
 
@@ -187,8 +190,8 @@ public class UserControllerIntegrationTest {
 
     @Test
     public void testGetUserRepliedTweetsWithParameters() throws Exception{
-        when(userService.getMostRepliedTweetsByUser(testUserDTO.getUsername(), 3,1, 10))
-                .thenReturn(tweetDTOs);
+        when(userService.getRepliedTweetsByUser(testUserDTO.getUsername(), false, 3,1, 10))
+                .thenReturn(tweetDTOContainer);
         TweetDTO tweet = tweetDTOs.get(0);
 
 

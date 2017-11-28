@@ -18,34 +18,63 @@ public class FeedController {
     @Autowired
     FeedService feedService;
 
-    @GetMapping(value = "/recent/")
-    public CombinedDTO getRecentTweets(@AuthenticationPrincipal CustomUser user,
+    @GetMapping(value = "/recent/new")
+    public CombinedDTO getNewTweets(@AuthenticationPrincipal CustomUser user,
                                              @RequestParam(name = "page", required = false, defaultValue = "0") int page,
                                              @RequestParam(name = "count", required = false, defaultValue = "20") int count){
-        return feedService.getRecentFeed(user.getUserID(), page, count);
+        return feedService.getRecentFeed(user.getUserID(), false, page, count);
     }
 
-    @GetMapping(value = "/liked/")
-    public CombinedDTO getLikedTweets(@AuthenticationPrincipal CustomUser user,
+    @GetMapping(value = "/recent/old")
+    public CombinedDTO getOldTweets(@AuthenticationPrincipal CustomUser user,
+                                       @RequestParam(name = "page", required = false, defaultValue = "0") int page,
+                                       @RequestParam(name = "count", required = false, defaultValue = "20") int count){
+        return feedService.getRecentFeed(user.getUserID(), true, page, count);
+    }
+
+    @GetMapping(value = "/liked/most/")
+    public CombinedDTO getMostLikedTweets(@AuthenticationPrincipal CustomUser user,
                                       @RequestParam(name = "t", required = false, defaultValue = "1") int dayLimit,
                                       @RequestParam(name = "page", required = false, defaultValue = "0") Integer page,
                                       @RequestParam(name = "count", required = false, defaultValue = "20") Integer count){
-        return feedService.getMostLikedFeed(user.getUserID(), dayLimit, page, count);
+        return feedService.getLikedFeed(user.getUserID(), false, dayLimit, page, count);
     }
 
-    @GetMapping(value = "/replied/")
-    public CombinedDTO getRepliedTweets(@AuthenticationPrincipal CustomUser user,
+    @GetMapping(value = "/liked/least/")
+    public CombinedDTO getLeastLikedTweets(@AuthenticationPrincipal CustomUser user,
+                                      @RequestParam(name = "t", required = false, defaultValue = "1") int dayLimit,
+                                      @RequestParam(name = "page", required = false, defaultValue = "0") Integer page,
+                                      @RequestParam(name = "count", required = false, defaultValue = "20") Integer count){
+        return feedService.getLikedFeed(user.getUserID(), true, dayLimit, page, count);
+    }
+
+    @GetMapping(value = "/replied/most")
+    public CombinedDTO getMostRepliedTweets(@AuthenticationPrincipal CustomUser user,
                                         @RequestParam(name = "t", required = false, defaultValue = "1") int dayLimit,
                                         @RequestParam(name = "page", required = false, defaultValue = "0") Integer page,
                                         @RequestParam(name = "count", required = false, defaultValue = "20") Integer count){
-        return feedService.getMostRepliedFeed(user.getUserID(), dayLimit, page, count);
+        return feedService.getRepliedFeed(user.getUserID(), false, dayLimit, page, count);
     }
 
-    @GetMapping(value = "/likes/")
-    public CombinedDTO getRepliedTweets(@AuthenticationPrincipal CustomUser user,
+    @GetMapping(value = "/replied/least")
+    public CombinedDTO getLeastRepliedTweets(@AuthenticationPrincipal CustomUser user,
+                                        @RequestParam(name = "t", required = false, defaultValue = "1") int dayLimit,
                                         @RequestParam(name = "page", required = false, defaultValue = "0") Integer page,
                                         @RequestParam(name = "count", required = false, defaultValue = "20") Integer count){
-        return feedService.getLikesFeed(user.getUserID(), page, count);
+        return feedService.getRepliedFeed(user.getUserID(), true, dayLimit, page, count);
     }
 
+    @GetMapping(value = "/likes/new")
+    public CombinedDTO getRecentLikedTweets(@AuthenticationPrincipal CustomUser user,
+                                        @RequestParam(name = "page", required = false, defaultValue = "0") Integer page,
+                                        @RequestParam(name = "count", required = false, defaultValue = "20") Integer count){
+        return feedService.getLikesFeed(user.getUserID(), false, page, count);
+    }
+
+    @GetMapping(value = "/likes/old")
+    public CombinedDTO getOldLikedTweets(@AuthenticationPrincipal CustomUser user,
+                                        @RequestParam(name = "page", required = false, defaultValue = "0") Integer page,
+                                        @RequestParam(name = "count", required = false, defaultValue = "20") Integer count){
+        return feedService.getLikesFeed(user.getUserID(), true, page, count);
+    }
 }

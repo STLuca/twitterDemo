@@ -3,6 +3,8 @@ package com.example.dao;
 
 import com.example.DataTransfer.UserDTO;
 import com.example.Entities.User;
+import com.example.Exception.exceptions.DuplicateEmailException;
+import com.example.Exception.exceptions.DuplicateUsernameException;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.*;
@@ -18,16 +20,16 @@ public class UserRepositoryImp implements JpaUserRepository{
     private EntityManager em;
 
 
-    public User getReference(Long id){
+    public User findUserByID(Long id){
         return em.getReference(User.class, id);
     }
 
     //IllegalArgumentException - if the first argument does not denote an entity type or the second argument is is not a valid type for that entity’s primary key or is null
-    public User findById(Long id){
+    //public User findById(Long id){
 
-        return em.find(User.class, id);
+    //    return em.find(User.class, id);
 
-    }
+   // }
 
     /*
         NoResultException - if there is no result
@@ -55,7 +57,28 @@ public class UserRepositoryImp implements JpaUserRepository{
     PersistenceException - if the flush fails
      */
     public void save(User user){
+
+        if (!checkUniqueUsername(user.getUsername())){
+            throw new DuplicateUsernameException(user.getUsername());
+        }
+
+        if (!checkUniqueEmail(user.getEmail())){
+            throw new DuplicateEmailException(user.getEmail());
+        }
+
         em.persist(user);
+    }
+
+    private boolean checkUniqueUsername(String username){
+        TypedQuery<User> q = em.createQuery("SELECT u FROM User u WHERE u.username = :username", User.class)
+                .setParameter("username", username);
+        return q.getResultList().size() == 0;
+    }
+
+    private boolean checkUniqueEmail(String email){
+        TypedQuery<User> q = em.createQuery("SELECT u FROM User u WHERE u.email = :email", User.class)
+                .setParameter("email", email);
+        return q.getResultList().size() == 0;
     }
 
     @Override
@@ -79,17 +102,11 @@ public class UserRepositoryImp implements JpaUserRepository{
 
     @Override
     public List<UserDTO> getUserByUsername(String username) {
-        Query query = em.createNativeQuery("SELECT \tu.id,\n" +
-                "\t\tu.username,\n" +
-                "\t\tCOUNT(DISTINCT t.id) \t\t   \ttweets,\n" +
-                "\t\tCOUNT(DISTINCT f.follower_id) \tfollowers,\n" +
-                "\t\tCOUNT(DISTINCT f2.followee_id) \tfollowing\n" +
-                "\tFROM users u\n" +
-                "\t\tLEFT JOIN tweets \tt \tON u.id = t.user_id\n" +
-                "\t\tLEFT JOIN follows f \tON u.id = f.followee_id\n" +
-                "\t\tLEFT JOIN follows f2 \tON u.id = f2.follower_id\n" +
-                "\tWHERE u.username = :username\n" +
-                "\tGROUP BY u.id;", "UserDTOMapping").setParameter("username", username);
+        String qs = "" +
+                "SELECT * FROM usersSummary u   \n" +
+                "WHERE u.username = :username";
+        Query query = em.createNativeQuery(qs, "UserDTOMapping")
+                .setParameter("username", username);
         return query.getResultList();
 
     }
@@ -97,17 +114,8 @@ public class UserRepositoryImp implements JpaUserRepository{
     @Override
     public List<UserDTO> getUsersByIDs(Set<Long> ids) {
         String qs = "" +
-                "SELECT u.id                            id,         \n" +
-                "       u.username                      username,   \n" +
-                "       COUNT(DISTINCT t.id)            tweets,     \n" +
-                "       COUNT(DISTINCT f.follower_id)   followers,  \n" +
-                "       COUNT(DISTINCT f2.followee_id)  following   \n" +
-                "FROM users u                                       \n" +
-                "   LEFT JOIN tweets  t  ON u.id = t.user_id        \n" +
-                "   LEFT JOIN follows f  ON u.id = f.followee_id    \n" +
-                "   LEFT JOIN follows f2 ON u.id = f2.follower_id   \n" +
-                "WHERE u.id IN (:ids)                               \n" +
-                "GROUP BY u.id;                                     \n";
+                "SELECT * FROM usersSummary u   \n" +
+                "WHERE u.id IN (:ids)           ";
         Query query = em.createNativeQuery(qs, "UserDTOMapping")
                 .setParameter("ids", ids);
         return  query.getResultList();
@@ -121,27 +129,14 @@ public class UserRepositoryImp implements JpaUserRepository{
     @Override
     public List<UserDTO> getFollowingByID(Long id, boolean old, int page, int count) {
         String qs = "" +
-                "SELECT u.id                            id,         \n" +
-                "       u.username                      username,   \n" +
-                "       COUNT(DISTINCT t.id)            tweets,     \n" +
-                "       COUNT(DISTINCT f.follower_id)   followers,  \n" +
-                "       COUNT(DISTINCT f2.followee_id)  following   \n" +
-                "FROM users u                                       \n" +
-                "   LEFT JOIN tweets  t  ON u.id = t.user_id        \n" +
-                "   LEFT JOIN follows f  ON u.id = f.followee_id    \n" +
-                "   LEFT JOIN follows f2 ON u.id = f2.follower_id   \n" +
-                "WHERE u.id in                                      \n" +
-                "   (select f3.followee_id from follows f3          \n" +
-                "           where f3.follower_id = :id)             \n" +
-                "GROUP BY u.id                                      \n" +
-                "HAVING followers > 0                               \n" +
-                "ORDER BY f.ts ";
+                "SELECT * FROM usersSummary u                   \n" +
+                "   JOIN follows f ON u.id = f.followee_id      \n" +
+                "   WHERE f.follower_id = :id                   \n" +
+                "   ORDER BY f.ts ";
         qs = qs + (old ? "ASC" : "DESC");
         Query query = em.createNativeQuery(qs, "UserDTOMapping")
-                .setParameter("id", id)
-                .setFirstResult(page * count)
-                .setMaxResults(count);
-        return  query.getResultList();
+                .setParameter("id", id);
+        return getPagedQueryResults(query, page, count);
     }
 
     public List<UserDTO> getFollowersByUsername(String username, boolean old, int page, int count){
@@ -152,28 +147,20 @@ public class UserRepositoryImp implements JpaUserRepository{
     @Override
     public List<UserDTO> getFollowersByID(Long id, boolean old, int page, int count) {
         String qs = "" +
-                "SELECT u.id                            id,         \n" +
-                "       u.username                      username,   \n" +
-                "       COUNT(DISTINCT t.id)            tweets,     \n" +
-                "       COUNT(DISTINCT f.follower_id)   followers,  \n" +
-                "       COUNT(DISTINCT f2.followee_id)  following   \n" +
-                "FROM users u                                       \n" +
-                "   LEFT JOIN tweets  t  ON u.id = t.user_id        \n" +
-                "   LEFT JOIN follows f  ON u.id = f.followee_id    \n" +
-                "   LEFT JOIN follows f2 ON u.id = f2.follower_id   \n" +
-                "WHERE u.id in                                      \n" +
-                "   (select f3.follower_id from follows f3          \n" +
-                "           where f3.followee_id = :id)             \n" +
-                "GROUP BY u.id                                      \n" +
-                "HAVING following > 0                               \n" +
-                "ORDER BY f2.ts ";
+                "SELECT * FROM usersSummary u                   \n" +
+                "   JOIN follows f ON u.id = f.follower_id      \n" +
+                "   WHERE f.followee_id = :id                   \n" +
+                "   ORDER BY f.ts ";
         qs = qs + (old ? "ASC" : "DESC");
         Query query = em.createNativeQuery(qs, "UserDTOMapping")
-                .setParameter("id", id)
-                .setFirstResult(page * count)
-                .setMaxResults(count);
-        return  query.getResultList();
+                .setParameter("id", id);
+        return getPagedQueryResults(query, page, count);
 
     }
 
+    private List<UserDTO> getPagedQueryResults(Query query, int page, int count){
+        query.setFirstResult(page * count)
+                .setMaxResults(count);
+        return query.getResultList();
+    }
 }

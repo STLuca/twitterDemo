@@ -1,18 +1,20 @@
 package com.example.Service;
 
 
+import com.example.DataTransfer.CombinedDTO;
 import com.example.DataTransfer.TweetDTO;
 import com.example.DataTransfer.UserDTO;
 import com.example.Entities.Tweet;
 import com.example.Entities.User;
 import com.example.dao.JpaTweetRepository;
 import com.example.dao.JpaUserRepository;
+import com.example.Exception.exceptions.UserNotFoundException;
+import com.example.Util.ITimeVariant;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.EntityNotFoundException;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -28,7 +30,8 @@ public class UserServiceImp implements UserService {
     @Autowired
     private JpaTweetRepository tweetRepository;
 
-    private static final Long DAY_IN_MS = new Long(1000 * 60 * 60 * 24);
+    @Autowired
+    private ITimeVariant timeVariant;
 
     @Autowired
     BCryptPasswordEncoder passwordEncoder;
@@ -39,7 +42,7 @@ public class UserServiceImp implements UserService {
 
         List<UserDTO> user = userRepository.getUserByUsername(username);
         if (user.isEmpty()){
-            throw new EntityNotFoundException();
+            throw new UserNotFoundException(username);
         } else {
             return user.get(0);
         }
@@ -68,7 +71,7 @@ public class UserServiceImp implements UserService {
     @Override
     public void followUser(Long userID, String followeeUsername){
 
-        User user = userRepository.getReference(userID);
+        User user = userRepository.findUserByID(userID);
         User followee = userRepository.findByUsername(followeeUsername);
         user.followUser(followee);
 
@@ -76,68 +79,63 @@ public class UserServiceImp implements UserService {
 
     @Override
     public void unfollowUser(Long userID, String followeeUsername){
-        User user = userRepository.getReference(userID);
+        User user = userRepository.findUserByID(userID);
         User followee = userRepository.findByUsername(followeeUsername);
         user.unfollowUser(followee);
 
     }
 
     @Override
-    public List<UserDTO> getFollowing(String username, boolean old, int page, int count) {
-        return userRepository.getFollowingByUsername(username, old, page, count);
+    public CombinedDTO getFollowing(String username, boolean old, int page, int count) {
+        return CombinedDTO.createFromUsers(userRepository.getFollowingByUsername(username, old, page, count));
     }
 
     @Override
-    public List<UserDTO> getFollowers(String username, boolean old, int page, int count) {
-        return userRepository.getFollowersByUsername(username, old, page, count);
+    public CombinedDTO getFollowers(String username, boolean old, int page, int count) {
+        return CombinedDTO.createFromUsers(userRepository.getFollowersByUsername(username, old, page, count));
     }
 
     @Override
     public void likeTweet(Long userID, Long tweetID){
 
-        Tweet tweet = tweetRepository.getReference(tweetID);
-        User user = userRepository.getReference(userID);
+        Tweet tweet = tweetRepository.findTweetByID(tweetID);
+        User user = userRepository.findUserByID(userID);
         user.likeTweet(tweet);
 
     }
 
     @Override
     public void unlikeTweet(Long userID, Long tweetID){
-        Tweet tweet = tweetRepository.getReference(tweetID);
-        User user = userRepository.getReference(userID);
+        Tweet tweet = tweetRepository.findTweetByID(tweetID);
+        User user = userRepository.findUserByID(userID);
         user.unlikeTweet(tweet);
     }
 
 
     @Override
-    public List<TweetDTO> getRecentTweetsByUser(String username, int page, int count) {
+    public CombinedDTO getRecentTweetsByUser(String username, boolean asc, int page, int count) {
         List<Long> userID = getUserIDFromUsernameAsList(username);
-        return tweetRepository.getRecentTweetsByUsers(userID, page, count);
+        return CombinedDTO.createFromTweets(tweetRepository.getRecentTweetsByUsers(userID, asc, page, count));
     }
 
     @Override
-    public List<TweetDTO> getMostLikedTweetsByUser(String username, int withinDays, int page, int count) {
-        Date date = getDateXDaysAgo(withinDays);
+    public CombinedDTO getLikedTweetsByUser(String username, boolean asc, int withinDays, int page, int count) {
+        Date date = timeVariant.getDateFromXDaysAgo(withinDays);
         List<Long> userID = getUserIDFromUsernameAsList(username);
-        return tweetRepository.getMostLikedTweetsByUsers(userID, date, page, count);
+        return CombinedDTO.createFromTweets(tweetRepository.getLikedTweetsByUsers(userID, asc, date, page, count));
     }
 
     @Override
-    public List<TweetDTO> getMostRepliedTweetsByUser(String username, int withinDays, int page, int count) {
-        Date date = getDateXDaysAgo(withinDays);
+    public CombinedDTO getRepliedTweetsByUser(String username, boolean asc, int withinDays, int page, int count) {
+        Date date = timeVariant.getDateFromXDaysAgo(withinDays);
         List<Long> userID = getUserIDFromUsernameAsList(username);
-        return tweetRepository.getMostRepliedTweetsByUsers(userID, date, page, count);
+        return CombinedDTO.createFromTweets(tweetRepository.getRepliedTweetsByUsers(userID, asc, date, page, count));
     }
 
     @Override
-    public List<TweetDTO> getUserLikes(String username, boolean old, int page, int count) {
+    public CombinedDTO getUserLikes(String username, boolean old, int page, int count) {
         List<Long> userID = getUserIDFromUsernameAsList(username);
-        return tweetRepository.getUsersLikedTweets(userID, old, page, count);
-    }
-
-
-    private Date getDateXDaysAgo(int xDays){
-        return new Date(System.currentTimeMillis() - (xDays * DAY_IN_MS));
+        return CombinedDTO.createFromTweets(tweetRepository.getUsersLikedTweets(userID, old, page, count));
     }
 
     private List<Long> getUserIDFromUsernameAsList(String username){

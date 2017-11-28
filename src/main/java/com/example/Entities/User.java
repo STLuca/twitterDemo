@@ -38,11 +38,12 @@ public class User implements Serializable {
     private Long id;
 
     @NotNull
-    @NaturalId
+    @Column(unique = true)
     private String username;
 
     @Email
     @NotNull
+    @Column(unique = true)
     private String email;
 
     @NotNull

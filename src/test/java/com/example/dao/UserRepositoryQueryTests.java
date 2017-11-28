@@ -169,8 +169,6 @@ public class UserRepositoryQueryTests {
 
     }
 
-
-
     @Test
     public void testGetNewFollowersPaging(){
         List<UserDTO> users = userRepository.getFollowersByUsername(USER_ONE_USERNAME,false,  0, 1);

@@ -1,5 +1,6 @@
 package com.example.Controllers;
 
+import com.example.DataTransfer.CombinedDTO;
 import com.example.DataTransfer.UserDTO;
 import com.example.Service.UserService;
 import org.junit.Before;
@@ -37,6 +38,7 @@ public class FollowControllerIntegrationTest {
 
     private UserDTO user;
     private List<UserDTO> users;
+    private CombinedDTO dtoContainer;
 
     @Before
     public void init(){
@@ -49,12 +51,13 @@ public class FollowControllerIntegrationTest {
 
         user = new UserDTO(new Long(1), "Bob", 1, 2, 3);
         users = Arrays.asList(user);
+        dtoContainer = CombinedDTO.createFromUsers(users);
     }
 
     @Test
     public void testOldFollowersDefaultParameters() throws Exception{
         when(userService.getFollowers(user.getUsername(), true, 0, 20))
-                .thenReturn(users);
+                .thenReturn(dtoContainer);
 
         mockMvc.perform(get("/user/" + user.getUsername() + "/followers/old"))
                 .andExpect(status().isOk())
@@ -64,7 +67,7 @@ public class FollowControllerIntegrationTest {
     @Test
     public void testOldFollowersCustomParameters() throws Exception{
         when(userService.getFollowers(user.getUsername(), true, 1, 10))
-                .thenReturn(users);
+                .thenReturn(dtoContainer);
 
         mockMvc.perform(get("/user/" + user.getUsername() + "/followers/old")
                             .param("page", "1")
@@ -76,7 +79,7 @@ public class FollowControllerIntegrationTest {
     @Test
     public void testNewFollowersDefaultParameters() throws Exception{
         when(userService.getFollowers(user.getUsername(), false, 0, 20))
-                .thenReturn(users);
+                .thenReturn(dtoContainer);
 
         mockMvc.perform(get("/user/" + user.getUsername() + "/followers/new"))
                 .andExpect(status().isOk())
@@ -86,7 +89,7 @@ public class FollowControllerIntegrationTest {
     @Test
     public void testNewFollowersCustomParameters() throws Exception{
         when(userService.getFollowers(user.getUsername(), false, 1, 10))
-                .thenReturn(users);
+                .thenReturn(dtoContainer);
 
         mockMvc.perform(get("/user/" + user.getUsername() + "/followers/new")
                 .param("page", "1")
@@ -98,7 +101,7 @@ public class FollowControllerIntegrationTest {
     @Test
     public void testOldFolloweesDefaultParameters() throws Exception{
         when(userService.getFollowing(user.getUsername(), false, 0, 20))
-                .thenReturn(users);
+                .thenReturn(dtoContainer);
 
         mockMvc.perform(get("/user/" + user.getUsername() + "/following/old"))
                 .andExpect(status().isOk())
@@ -108,7 +111,7 @@ public class FollowControllerIntegrationTest {
     @Test
     public void testOldFolloweesCustomParameters() throws Exception{
         when(userService.getFollowing(user.getUsername(), true, 1, 10))
-                .thenReturn(users);
+                .thenReturn(dtoContainer);
 
         mockMvc.perform(get("/user/" + user.getUsername() + "/following/old")
                 .param("page", "1")
@@ -120,7 +123,7 @@ public class FollowControllerIntegrationTest {
     @Test
     public void testNewFolloweesDefaultParameters() throws Exception{
         when(userService.getFollowing(user.getUsername(), true, 0, 20))
-                .thenReturn(users);
+                .thenReturn(dtoContainer);
 
         mockMvc.perform(get("/user/" + user.getUsername() + "/following/new"))
                 .andExpect(status().isOk())
@@ -130,7 +133,7 @@ public class FollowControllerIntegrationTest {
     @Test
     public void testNewFolloweesCustomParameters() throws Exception{
         when(userService.getFollowing(user.getUsername(), true, 1, 10))
-                .thenReturn(users);
+                .thenReturn(dtoContainer);
 
         mockMvc.perform(get("/user/" + user.getUsername() + "/following/new")
                 .param("page", "1")

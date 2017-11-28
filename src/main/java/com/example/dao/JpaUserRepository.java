@@ -11,8 +11,8 @@ import java.util.Set;
 
 public interface JpaUserRepository {
 
-    User getReference(Long id);
-    User findById(Long id);
+    User findUserByID(Long id);
+    //User findById(Long id);
     User findByUsername(String username);
     void save(User user);
     void update(User user);

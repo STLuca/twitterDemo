@@ -1,5 +1,6 @@
 package com.example.Controllers;
 
+import com.example.DataTransfer.CombinedDTO;
 import com.example.DataTransfer.TweetDTO;
 import com.example.Entities.Tweet;
 import com.example.Entities.User;
@@ -32,15 +33,15 @@ public class LikeController {
         userService.unlikeTweet(user.getUserID(), tweetID);
     }
 
-    @GetMapping(value = "/user/{username}/likes/new/")
-    public List<TweetDTO> getUsersNewLikes(@PathVariable String username,
-                                     @RequestParam(name = "page", required = false, defaultValue = "0") int page,
-                                     @RequestParam(name = "count", required = false, defaultValue = "20") int count){
+    @GetMapping(value = "/user/{username}/tweets/likes/new")
+    public CombinedDTO getUsersNewLikes(@PathVariable String username,
+                                        @RequestParam(name = "page", required = false, defaultValue = "0") int page,
+                                        @RequestParam(name = "count", required = false, defaultValue = "20") int count){
         return userService.getUserLikes(username, false, page, count);
     }
 
-    @GetMapping(value = "/user/{username}/likes/old/")
-    public List<TweetDTO> getUsersOldLikes(@PathVariable String username,
+    @GetMapping(value = "/user/{username}/tweets/likes/old")
+    public CombinedDTO getUsersOldLikes(@PathVariable String username,
                                            @RequestParam(name = "page", required = false, defaultValue = "0") int page,
                                            @RequestParam(name = "count", required = false, defaultValue = "20") int count){
         return userService.getUserLikes(username, true, page, count);

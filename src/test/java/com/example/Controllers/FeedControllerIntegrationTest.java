@@ -45,7 +45,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 
 @RunWith(SpringJUnit4ClassRunner.class)
-//@ContextConfiguration(classes = CustomUserDetailsService.class)
 @Import(value = CustomUserDetailsService.class)
 @WebMvcTest(value = FeedController.class)
 public class FeedControllerIntegrationTest {
@@ -57,7 +56,7 @@ public class FeedControllerIntegrationTest {
     private WebApplicationContext context;
 
     @Autowired
-    private UserDetailsService customUserService = new CustomUserDetailsService();
+    private UserDetailsService customUserService;
 
     private MockMvc mockMvc;
 
@@ -83,7 +82,7 @@ public class FeedControllerIntegrationTest {
     @WithUserDetails(value = "bob")
     public void testGetRecentFeedDefaultParameters() throws Exception{
 
-        when(feedService.getRecentFeed( (new Long(1)), 0, 20))
+        when(feedService.getRecentFeed( (new Long(1)), false, 0, 20))
                 .thenReturn(dto);
 
         mockMvc.perform(get("/feed/recent/"))
@@ -98,7 +97,7 @@ public class FeedControllerIntegrationTest {
     @WithUserDetails(value = "bob")
     public void testGetRecentFeedCustomParameters() throws Exception{
 
-        when(feedService.getRecentFeed( (new Long(1)), 1, 10))
+        when(feedService.getRecentFeed( (new Long(1)), false, 1, 10))
                 .thenReturn(dto);
 
         mockMvc.perform(get("/feed/recent/")
@@ -115,7 +114,7 @@ public class FeedControllerIntegrationTest {
     @WithUserDetails(value = "bob")
     public void testGetLikedFeedDefaultParameters() throws Exception{
 
-        when(feedService.getMostLikedFeed( (new Long(1)), 1, 0, 20))
+        when(feedService.getLikedFeed( (new Long(1)), false, 1, 0, 20))
                 .thenReturn(dto);
 
         mockMvc.perform(get("/feed/liked/"))
@@ -130,7 +129,7 @@ public class FeedControllerIntegrationTest {
     @WithUserDetails(value = "bob")
     public void testGetLikedFeedCustomParameters() throws Exception{
 
-        when(feedService.getMostLikedFeed( (new Long(1)), 3, 1, 10))
+        when(feedService.getLikedFeed( (new Long(1)), false, 3, 1, 10))
                 .thenReturn(dto);
 
         mockMvc.perform(get("/feed/liked/")
@@ -148,7 +147,7 @@ public class FeedControllerIntegrationTest {
     @WithUserDetails(value = "bob")
     public void testGetRepliedFeedDefaultParameters() throws Exception{
 
-        when(feedService.getMostRepliedFeed( (new Long(1)), 1, 0, 20))
+        when(feedService.getRepliedFeed( (new Long(1)), false, 1, 0, 20))
                 .thenReturn(dto);
 
         mockMvc.perform(get("/feed/replied/"))
@@ -163,7 +162,7 @@ public class FeedControllerIntegrationTest {
     @WithUserDetails(value = "bob")
     public void testGetRepliedFeedCustomParameters() throws Exception{
 
-        when(feedService.getMostRepliedFeed( (new Long(1)), 3, 1, 10))
+        when(feedService.getRepliedFeed( (new Long(1)), false, 3, 1, 10))
                 .thenReturn(dto);
 
         mockMvc.perform(get("/feed/replied/")
@@ -181,7 +180,7 @@ public class FeedControllerIntegrationTest {
     @WithUserDetails(value = "bob")
     public void testGetLikesFeedDefaultParameters() throws Exception{
 
-        when(feedService.getLikesFeed( (new Long(1)), 0, 20))
+        when(feedService.getLikesFeed( (new Long(1)), false, 0, 20))
                 .thenReturn(dto);
 
         mockMvc.perform(get("/feed/likes/"))
@@ -196,7 +195,7 @@ public class FeedControllerIntegrationTest {
     @WithUserDetails(value = "bob")
     public void testGetLikesFeedCustomParameters() throws Exception{
 
-        when(feedService.getLikesFeed( (new Long(1)), 1, 10))
+        when(feedService.getLikesFeed( (new Long(1)), false, 1, 10))
                 .thenReturn(dto);
 
         mockMvc.perform(get("/feed/likes/")

@@ -8,12 +8,12 @@ import com.example.Entities.Tweet;
 import com.example.Entities.User;
 import com.example.dao.JpaTweetRepository;
 import com.example.dao.JpaUserRepository;
-import com.example.exception.exceptions.InvalidOwnerException;
+import com.example.Exception.exceptions.InvalidOwnerException;
+import com.example.Exception.exceptions.TweetNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.EntityNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -33,7 +33,7 @@ public class TweetServiceImp implements TweetService{
     public TweetDTO getTweet(Long id) {
         List<TweetDTO> tweet = tweetRepository.getTweet(id);
         if (tweet.isEmpty()){
-            throw new EntityNotFoundException();
+            throw new TweetNotFoundException(id);
         } else {
             return tweet.get(0);
         }
@@ -41,7 +41,7 @@ public class TweetServiceImp implements TweetService{
 
     @Override
     public TweetDTO saveTweet(Long userID, String message) {
-        User user = userRepository.getReference(userID);
+        User user = userRepository.findUserByID(userID);
         Tweet tweet = new Tweet(user, message);
         tweetRepository.save(tweet);
         return convertNewTweetToTweetDTO(tweet);
@@ -49,9 +49,9 @@ public class TweetServiceImp implements TweetService{
 
     @Override
     public TweetDTO saveReplyTweet(Long userID, String message, Long replyToId) {
-        User user = userRepository.getReference(userID);
+        User user = userRepository.findUserByID(userID);
         Tweet tweet = new Tweet(user, message);
-        tweet.setRepliedTo(tweetRepository.getReference(replyToId));
+        tweet.setRepliedTo(tweetRepository.findTweetByID(replyToId));
         tweetRepository.save(tweet);
         return convertNewTweetToTweetDTO(tweet);
     }
@@ -71,8 +71,8 @@ public class TweetServiceImp implements TweetService{
 
     @Override
     public void deleteTweet(Long tweetID, Long userID) {
-        Tweet tweet = tweetRepository.getReference(tweetID);
-        User userRequesting = userRepository.getReference(userID);
+        Tweet tweet = tweetRepository.findTweetByID(tweetID);
+        User userRequesting = userRepository.findUserByID(userID);
         if (tweet.getUser().equals(userRequesting)){
             tweetRepository.delete(tweet);
         } else {
@@ -81,16 +81,19 @@ public class TweetServiceImp implements TweetService{
     }
 
     @Override
-    public List<UserDTO> getLikedBy(Long tweetID) {
-        Tweet tweet = tweetRepository.getReference(tweetID);
-        List<User> users = new ArrayList<>();
+    public CombinedDTO getLikedBy(Long tweetID) {
+        Tweet tweet = tweetRepository.findTweetByID(tweetID);
         Set<Long> ids = tweet.getLikedBy().stream().map(Like::getLikedBy).map(User::getId).collect(Collectors.toSet());
-        return userRepository.getUsersByIDs(ids);
+        if (ids.isEmpty()){
+            return CombinedDTO.emptyCombinedDTO();      //<----------clean up sql query for empty result set
+        }
+        return CombinedDTO.createFromUsers(userRepository.getUsersByIDs(ids));
     }
 
     @Override
     public CombinedDTO getRecentTweetReplies(Long tweetID, boolean asc, int page, int count) {
         List<TweetDTO> tweets = tweetRepository.getRecentTweetReplies(tweetID, asc, page, count);
+        if (tweets.isEmpty()){ return null; }
         List<UserDTO> users = userRepository.getUsersByIDs(getUserIDsFromTweets(tweets));
         return new CombinedDTO(users, tweets);
     }
@@ -98,6 +101,7 @@ public class TweetServiceImp implements TweetService{
     @Override
     public CombinedDTO getLikedTweetReplies(Long tweetID, boolean asc, int page, int count) {
         List<TweetDTO> tweets = tweetRepository.getLikedTweetReplies(tweetID, asc, page, count);
+        if (tweets.isEmpty()){ return null; }
         List<UserDTO> users = userRepository.getUsersByIDs(getUserIDsFromTweets(tweets));
         return new CombinedDTO(users, tweets);
     }
@@ -105,6 +109,7 @@ public class TweetServiceImp implements TweetService{
     @Override
     public CombinedDTO getRepliedTweetReplies(Long tweetID, boolean asc, int page, int count) {
         List<TweetDTO> tweets = tweetRepository.getRepliedTweetReplies(tweetID, asc, page, count);
+        if (tweets.isEmpty()){ return null; }
         List<UserDTO> users = userRepository.getUsersByIDs(getUserIDsFromTweets(tweets));
         return new CombinedDTO(users, tweets);
 

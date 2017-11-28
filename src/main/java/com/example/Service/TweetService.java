@@ -17,11 +17,8 @@ public interface TweetService {
     TweetDTO saveReplyTweet(Long userID, String message, Long replyToId);
     void deleteTweet(Long tweetID, Long userID);
 
-    List<UserDTO> getLikedBy(Long tweetID);
+    CombinedDTO getLikedBy(Long tweetID);
 
-    //gets the tweets the user replied to and some replies
-    //List<TweetDTO> getTweetOverview(Long tweetID);
-    //List<TweetDTO> getParentTweets(Long tweetID);
     CombinedDTO getRecentTweetReplies(Long tweetID, boolean asc, int page, int count);
     CombinedDTO getLikedTweetReplies(Long tweetID, boolean asc, int page, int count);
     CombinedDTO getRepliedTweetReplies(Long tweetID, boolean asc, int page, int count);

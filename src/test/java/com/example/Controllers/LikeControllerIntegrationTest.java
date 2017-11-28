@@ -1,5 +1,6 @@
 package com.example.Controllers;
 
+import com.example.DataTransfer.CombinedDTO;
 import com.example.DataTransfer.TweetDTO;
 import com.example.Service.UserService;
 import org.junit.Before;
@@ -39,6 +40,7 @@ public class LikeControllerIntegrationTest {
 
     private String username;
     private List<TweetDTO> tweets;
+    private CombinedDTO dtoContainer;
 
     @Before
     public void init() {
@@ -51,12 +53,13 @@ public class LikeControllerIntegrationTest {
 
         username = "bob";
         tweets = Arrays.asList(new TweetDTO(new Long(2), new Long(1), "my tweet message", new Date(), null,1, 1));
+        dtoContainer = CombinedDTO.createFromTweets(tweets);
     }
 
     @Test
     public void testGetUsersNewLikesDefaultParameters() throws Exception{
         when(userService.getUserLikes(username, false, 0, 20))
-                .thenReturn(tweets);
+                .thenReturn(dtoContainer);
 
         mockMvc.perform(get("/user/" + username + "/likes/new/"))
                 .andExpect(status().isOk())
@@ -67,7 +70,7 @@ public class LikeControllerIntegrationTest {
     @Test
     public void testGetUsersNewLikesCustomParameters() throws Exception{
         when(userService.getUserLikes(username, false, 1, 10))
-                .thenReturn(tweets);
+                .thenReturn(dtoContainer);
 
         mockMvc.perform(get("/user/" + username + "/likes/new/")
                 .param("page", "1")
@@ -80,7 +83,7 @@ public class LikeControllerIntegrationTest {
     @Test
     public void testGetUsersOldLikesDefaultParameters() throws Exception{
         when(userService.getUserLikes(username, true, 0, 20))
-                .thenReturn(tweets);
+                .thenReturn(dtoContainer);
 
         mockMvc.perform(get("/user/" + username + "/likes/old/"))
                 .andExpect(status().isOk())
@@ -91,7 +94,7 @@ public class LikeControllerIntegrationTest {
     @Test
     public void testGetUsersOldLikesCustomParameters() throws Exception{
         when(userService.getUserLikes(username, true, 1, 10))
-                .thenReturn(tweets);
+                .thenReturn(dtoContainer);
 
         mockMvc.perform(get("/user/" + username + "/likes/old/")
                 .param("page", "1")

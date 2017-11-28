@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+
 @RestController
 @RequestMapping(value = "/tweet")
 public class TweetController {
@@ -49,12 +50,23 @@ public class TweetController {
         tweetService.deleteTweet(id, customUser.getUserID());
     }
 
-    @GetMapping(value = "/{id}/likes")
-    public List<UserDTO> getTweetLikes(@PathVariable Long id){
+    //LIKE REPLIES
+    //Change tweet service to see old or new likes, atm only new likes
+
+    @GetMapping(value = "/{id}/replies/likes/new")
+    public CombinedDTO getNewTweetLikes(@PathVariable Long id){
         return tweetService.getLikedBy(id);
     }
 
-    @GetMapping(value = "/{tweetID}/replies/old")
+    @GetMapping(value = "/{id}/replies/likes/old")
+    public CombinedDTO getOldTweetLikes(@PathVariable Long id){
+        return tweetService.getLikedBy(id);
+    }
+
+
+    //TWEET REPLIES
+
+    @GetMapping(value = "/{tweetID}/replies/recent/old")
     public CombinedDTO getRepliesOfTweetbyOldest(
             @PathVariable Long tweetID,
             @RequestParam(name = "page", required = false, defaultValue = "0") int page,
@@ -62,7 +74,7 @@ public class TweetController {
         return tweetService.getRecentTweetReplies(tweetID, true, page, count);
     }
 
-    @GetMapping(value = "/{tweetID}/replies/new")
+    @GetMapping(value = "/{tweetID}/replies/recent/new")
     public CombinedDTO getRepliesOfTweetbyRecent(
             @PathVariable Long tweetID,
             @RequestParam(name = "page", required = false, defaultValue = "0") int page,

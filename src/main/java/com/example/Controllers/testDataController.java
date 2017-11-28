@@ -100,10 +100,10 @@ public class testDataController {
             for (User user2 : users){
 
                 if (!user.equals(user2)){
-                    //if (rand.nextBoolean()){
+                    if (rand.nextBoolean()){
                         userService.followUser(user.getId(), user2.getUsername());
                         waitXMilliseconds(101);
-                    //}
+                    }
                 }
 
             }

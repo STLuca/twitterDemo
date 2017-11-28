@@ -43,6 +43,7 @@ public class TweetControllerIntegrationTest {
 
     private TweetDTO tweet;
     private List<UserDTO> users;
+    private CombinedDTO usersDTOContainer;
     private CombinedDTO replies;
 
     @Before
@@ -57,7 +58,7 @@ public class TweetControllerIntegrationTest {
         tweet = new TweetDTO(new Long(2), new Long(1), "my tweet message", new Date(), null,1, 1);
         users = Arrays.asList(new UserDTO(new Long(1), "Bob", 1, 2, 3));
         replies = new CombinedDTO(users, Arrays.asList(tweet));
-
+        usersDTOContainer = CombinedDTO.createFromUsers(users);
     }
 
     @Test
@@ -76,7 +77,7 @@ public class TweetControllerIntegrationTest {
     public void testGetLikedByDefaultParameters() throws Exception {
 
         when(tweetService.getLikedBy(tweet.getId()))
-                .thenReturn(users);
+                .thenReturn(usersDTOContainer);
 
         mockMvc.perform(get("/tweet/" + tweet.getId() + "/likes"))
                 .andExpect(status().isOk())
@@ -88,7 +89,7 @@ public class TweetControllerIntegrationTest {
     public void testGetLikedByCustomParameters() throws Exception {
 
         when(tweetService.getLikedBy(tweet.getId()))
-                .thenReturn(users);
+                .thenReturn(usersDTOContainer);
 
         mockMvc.perform(get("/tweet/" + tweet.getId() + "/likes")
                         .param("page", "1")

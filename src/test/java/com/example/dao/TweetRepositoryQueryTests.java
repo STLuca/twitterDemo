@@ -153,7 +153,7 @@ public class TweetRepositoryQueryTests {
         ids.add(userOne.getId());
         ids.add(userThree.getId());
 
-        List<TweetDTO> recentTweets = tweetRepository.getRecentTweetsByUsers(ids, 0, 20);
+        List<TweetDTO> recentTweets = tweetRepository.getRecentTweetsByUsers(ids, false, 0, 20);
         assertEquals(recentTweets.size(), 3);
         assertEquals(recentTweets.get(0), tweetDTOs.get(3));
         assertEquals(recentTweets.get(1), tweetDTOs.get(2));
@@ -166,7 +166,7 @@ public class TweetRepositoryQueryTests {
         ids.add(userOne.getId());
         ids.add(userTwo.getId());
 
-        List<TweetDTO> recentTweets = tweetRepository.getMostLikedTweetsByUsers(ids, VALID_DATE, 0, 20);
+        List<TweetDTO> recentTweets = tweetRepository.getLikedTweetsByUsers(ids, false, VALID_DATE, 0, 20);
         assertEquals(recentTweets.size(), 3);
         assertEquals(recentTweets.get(0), tweetDTOs.get(3));
         assertEquals(recentTweets.get(1), tweetDTOs.get(1));
@@ -179,7 +179,7 @@ public class TweetRepositoryQueryTests {
         ids.add(userOne.getId());
         ids.add(userTwo.getId());
 
-        List<TweetDTO> recentTweets = tweetRepository.getMostRepliedTweetsByUsers(ids, VALID_DATE, 0, 20);
+        List<TweetDTO> recentTweets = tweetRepository.getRepliedTweetsByUsers(ids, false, VALID_DATE, 0, 20);
         assertEquals(recentTweets.size(), 3);
         assertEquals(recentTweets.get(0), tweetDTOs.get(0));
         assertEquals(recentTweets.get(1), tweetDTOs.get(1));
@@ -196,7 +196,7 @@ public class TweetRepositoryQueryTests {
         ids.add(new Long(8878));
         ids.add(new Long(9979));
 
-        List<TweetDTO> recentTweets = tweetRepository.getRecentTweetsByUsers(ids, 0, 20);
+        List<TweetDTO> recentTweets = tweetRepository.getRecentTweetsByUsers(ids, false, 0, 20);
         assertEquals(recentTweets.size(), 2);
         assertEquals(recentTweets.get(0), tweetDTOs.get(2));
         assertEquals(recentTweets.get(1), tweetDTOs.get(1));
@@ -210,7 +210,7 @@ public class TweetRepositoryQueryTests {
         ids.add(new Long(8878));
         ids.add(new Long(9979));
 
-        List<TweetDTO> recentTweets = tweetRepository.getMostLikedTweetsByUsers(ids, VALID_DATE,  0, 20);
+        List<TweetDTO> recentTweets = tweetRepository.getLikedTweetsByUsers(ids, false, VALID_DATE,  0, 20);
         assertEquals(recentTweets.size(), 2);
         assertEquals(recentTweets.get(0), tweetDTOs.get(1));
         assertEquals(recentTweets.get(1), tweetDTOs.get(2));
@@ -224,7 +224,7 @@ public class TweetRepositoryQueryTests {
         ids.add(new Long(8878));
         ids.add(new Long(9979));
 
-        List<TweetDTO> recentTweets = tweetRepository.getMostRepliedTweetsByUsers(ids, VALID_DATE, 0, 20);
+        List<TweetDTO> recentTweets = tweetRepository.getRepliedTweetsByUsers(ids, false, VALID_DATE, 0, 20);
         assertEquals(recentTweets.size(), 2);
         assertEquals(recentTweets.get(0), tweetDTOs.get(1));
         assertEquals(recentTweets.get(1), tweetDTOs.get(2));
@@ -238,7 +238,7 @@ public class TweetRepositoryQueryTests {
         ids.add(new Long(8878));
         ids.add(new Long(9979));
 
-        List<TweetDTO> recentTweets = tweetRepository.getRecentTweetsByUsers(ids, 0, 20);
+        List<TweetDTO> recentTweets = tweetRepository.getRecentTweetsByUsers(ids, false, 0, 20);
         assertEquals(recentTweets.size(), 0);
     }
 
@@ -248,7 +248,7 @@ public class TweetRepositoryQueryTests {
         ids.add(new Long(8878));
         ids.add(new Long(9979));
 
-        List<TweetDTO> recentTweets = tweetRepository.getMostLikedTweetsByUsers(ids, VALID_DATE,0, 20);
+        List<TweetDTO> recentTweets = tweetRepository.getLikedTweetsByUsers(ids, false, VALID_DATE,0, 20);
         assertEquals(recentTweets.size(), 0);
     }
 
@@ -258,7 +258,7 @@ public class TweetRepositoryQueryTests {
         ids.add(new Long(8878));
         ids.add(new Long(9979));
 
-        List<TweetDTO> recentTweets = tweetRepository.getMostRepliedTweetsByUsers(ids, VALID_DATE, 0, 20);
+        List<TweetDTO> recentTweets = tweetRepository.getRepliedTweetsByUsers(ids, false, VALID_DATE, 0, 20);
         assertEquals(recentTweets.size(), 0);
     }
 
@@ -270,7 +270,7 @@ public class TweetRepositoryQueryTests {
         ids.add(userTwo.getId());
         ids.add(userThree.getId());
 
-        List<TweetDTO> responseDTOs = tweetRepository.getMostLikedTweetsByUsers(ids, INVALID_DATE, 0, 20);
+        List<TweetDTO> responseDTOs = tweetRepository.getLikedTweetsByUsers(ids, false, INVALID_DATE, 0, 20);
         assertEquals(responseDTOs.size(), 0);
     }
 
@@ -280,7 +280,7 @@ public class TweetRepositoryQueryTests {
         ids.add(userTwo.getId());
         ids.add(userThree.getId());
 
-        List<TweetDTO> responseDTOs = tweetRepository.getMostRepliedTweetsByUsers(ids, INVALID_DATE, 0, 20);
+        List<TweetDTO> responseDTOs = tweetRepository.getRepliedTweetsByUsers(ids, false, INVALID_DATE, 0, 20);
         assertEquals(responseDTOs.size(), 0);
     }
 
@@ -294,7 +294,7 @@ public class TweetRepositoryQueryTests {
 
         Date date = new Date(tweets.get(0).getCreationTimestamp().getTime() + 500);
 
-        List<TweetDTO> responseDTOs = tweetRepository.getMostLikedTweetsByUsers(ids, date, 0, 20);
+        List<TweetDTO> responseDTOs = tweetRepository.getLikedTweetsByUsers(ids, false, date, 0, 20);
         assertEquals(responseDTOs.size(), 3);
         assertEquals(responseDTOs.get(0), tweetDTOs.get(3));
         assertEquals(responseDTOs.get(1), tweetDTOs.get(1));
@@ -309,7 +309,7 @@ public class TweetRepositoryQueryTests {
 
         Date date = new Date(tweets.get(0).getCreationTimestamp().getTime() + 500);
 
-        List<TweetDTO> responseDTOs = tweetRepository.getMostRepliedTweetsByUsers(ids, date, 0, 20);
+        List<TweetDTO> responseDTOs = tweetRepository.getRepliedTweetsByUsers(ids, false, date, 0, 20);
         assertEquals(responseDTOs.size(), 2);
         assertEquals(responseDTOs.get(0), tweetDTOs.get(1));
         assertEquals(responseDTOs.get(1), tweetDTOs.get(3));
