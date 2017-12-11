@@ -31,8 +31,8 @@ public class UserController {
 
 
     @GetMapping(value = "/{username}")
-    public UserDTO getUser(@PathVariable String username){
-        return userService.getUser(username);
+    public UserDTO getUser(@PathVariable String username, @AuthenticationPrincipal CustomUser customUser){
+        return userService.getUser(username, customUser.getUserID());
     }
 
     @DeleteMapping(value = "/{username}")
@@ -44,48 +44,60 @@ public class UserController {
     }
 
     @GetMapping(value = "{username}/tweets/recent/new")
-    public CombinedDTO userNewTweets(@PathVariable String username,
+    public CombinedDTO userNewTweets(
+            @AuthenticationPrincipal CustomUser customUser,
+            @PathVariable String username,
                                      @RequestParam(name = "page", required = false, defaultValue = "0") int page,
                                      @RequestParam(name = "count", required = false, defaultValue = "20") int count){
-        return userService.getRecentTweetsByUser(username, false, page, count);
+        return userService.getRecentTweetsByUser(username, customUser.getUserID(), false, page, count);
     }
 
     @GetMapping(value = "{username}/tweets/recent/old")
-    public CombinedDTO userOldTweets(@PathVariable String username,
+    public CombinedDTO userOldTweets(
+            @AuthenticationPrincipal CustomUser customUser,
+            @PathVariable String username,
                                            @RequestParam(name = "page", required = false, defaultValue = "0") int page,
                                            @RequestParam(name = "count", required = false, defaultValue = "20") int count){
-        return userService.getRecentTweetsByUser(username, true, page, count);
+        return userService.getRecentTweetsByUser(username, customUser.getUserID(), true, page, count);
     }
 
     @GetMapping(value = "{username}/tweets/liked/most")
-    public CombinedDTO userMostLikedTweets(@PathVariable String username,
+    public CombinedDTO userMostLikedTweets(
+            @AuthenticationPrincipal CustomUser customUser,
+            @PathVariable String username,
                                        @RequestParam(name = "t", required = false, defaultValue = "1") int dayLimit,
                                        @RequestParam(name = "page", required = false, defaultValue = "0") int page,
                                        @RequestParam(name = "count", required = false, defaultValue = "20") int count){
-        return userService.getLikedTweetsByUser(username, false, dayLimit, page, count);
+        return userService.getLikedTweetsByUser(username, customUser.getUserID(), false, dayLimit, page, count);
     }
 
     @GetMapping(value = "{username}/tweets/liked/least")
-    public CombinedDTO userLeastLikedTweets(@PathVariable String username,
+    public CombinedDTO userLeastLikedTweets(
+            @AuthenticationPrincipal CustomUser customUser,
+            @PathVariable String username,
                                           @RequestParam(name = "t", required = false, defaultValue = "1") int dayLimit,
                                           @RequestParam(name = "page", required = false, defaultValue = "0") int page,
                                           @RequestParam(name = "count", required = false, defaultValue = "20") int count){
-        return userService.getLikedTweetsByUser(username, true, dayLimit, page, count);
+        return userService.getLikedTweetsByUser(username, customUser.getUserID(), true, dayLimit, page, count);
     }
 
     @GetMapping(value = "{username}/tweets/replied/most")
-    public CombinedDTO userMostRepliedTweets(@PathVariable String username,
+    public CombinedDTO userMostRepliedTweets(
+            @AuthenticationPrincipal CustomUser customUser,
+            @PathVariable String username,
                                          @RequestParam(name = "t", required = false, defaultValue = "1") int dayLimit,
                                          @RequestParam(name = "page", required = false, defaultValue = "0") int page,
                                          @RequestParam(name = "count", required = false, defaultValue = "20") int count){
-        return userService.getRepliedTweetsByUser(username, false, dayLimit, page, count);
+        return userService.getRepliedTweetsByUser(username, customUser.getUserID(), false, dayLimit, page, count);
     }
 
     @GetMapping(value = "{username}/tweets/replied/least")
-    public CombinedDTO userLeastRepliedTweets(@PathVariable String username,
+    public CombinedDTO userLeastRepliedTweets(
+            @AuthenticationPrincipal CustomUser customUser,
+            @PathVariable String username,
                                                 @RequestParam(name = "t", required = false, defaultValue = "1") int dayLimit,
                                                 @RequestParam(name = "page", required = false, defaultValue = "0") int page,
                                                 @RequestParam(name = "count", required = false, defaultValue = "20") int count){
-        return userService.getRepliedTweetsByUser(username, true, dayLimit, page, count);
+        return userService.getRepliedTweetsByUser(username, customUser.getUserID(), true, dayLimit, page, count);
     }
 }

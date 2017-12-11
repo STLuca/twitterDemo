@@ -73,8 +73,8 @@ public class FeedControllerIntegrationTest {
 
         List<UserDTO> users = new ArrayList<>();
         List<TweetDTO> tweets = new ArrayList<>();
-        users.add(new UserDTO(new Long(1), "Bob", 1, 2, 3));
-        tweets.add(new TweetDTO(new Long(2), new Long(1), "my tweet message", new Date(), null,1, 1));
+        users.add(new UserDTO(new Long(1), "Bob", 1, 2, 3, true));
+        tweets.add(new TweetDTO(new Long(2), new Long(1), "my tweet message", new Date(), null,1, 1, false));
         dto = new CombinedDTO(users, tweets);
     }
 
@@ -85,7 +85,7 @@ public class FeedControllerIntegrationTest {
         when(feedService.getRecentFeed( (new Long(1)), false, 0, 20))
                 .thenReturn(dto);
 
-        mockMvc.perform(get("/feed/recent/"))
+        mockMvc.perform(get("/feed/recent/new"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8))
                 .andExpect(jsonPath("$.users").isArray())
@@ -100,7 +100,7 @@ public class FeedControllerIntegrationTest {
         when(feedService.getRecentFeed( (new Long(1)), false, 1, 10))
                 .thenReturn(dto);
 
-        mockMvc.perform(get("/feed/recent/")
+        mockMvc.perform(get("/feed/recent/new")
                             .param("page", "1")
                             .param("count", "10"))
                 .andExpect(status().isOk())
@@ -112,12 +112,12 @@ public class FeedControllerIntegrationTest {
 
     @Test
     @WithUserDetails(value = "bob")
-    public void testGetLikedFeedDefaultParameters() throws Exception{
+    public void testGetMostLikedFeedDefaultParameters() throws Exception{
 
         when(feedService.getLikedFeed( (new Long(1)), false, 1, 0, 20))
                 .thenReturn(dto);
 
-        mockMvc.perform(get("/feed/liked/"))
+        mockMvc.perform(get("/feed/liked/most"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8))
                 .andExpect(jsonPath("$.users").isArray())
@@ -127,12 +127,12 @@ public class FeedControllerIntegrationTest {
 
     @Test
     @WithUserDetails(value = "bob")
-    public void testGetLikedFeedCustomParameters() throws Exception{
+    public void testGetMostLikedFeedCustomParameters() throws Exception{
 
         when(feedService.getLikedFeed( (new Long(1)), false, 3, 1, 10))
                 .thenReturn(dto);
 
-        mockMvc.perform(get("/feed/liked/")
+        mockMvc.perform(get("/feed/liked/most")
                 .param("t", "3")
                 .param("page", "1")
                 .param("count", "10"))
@@ -150,7 +150,7 @@ public class FeedControllerIntegrationTest {
         when(feedService.getRepliedFeed( (new Long(1)), false, 1, 0, 20))
                 .thenReturn(dto);
 
-        mockMvc.perform(get("/feed/replied/"))
+        mockMvc.perform(get("/feed/replied/most"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8))
                 .andExpect(jsonPath("$.users").isArray())
@@ -165,7 +165,7 @@ public class FeedControllerIntegrationTest {
         when(feedService.getRepliedFeed( (new Long(1)), false, 3, 1, 10))
                 .thenReturn(dto);
 
-        mockMvc.perform(get("/feed/replied/")
+        mockMvc.perform(get("/feed/replied/most")
                 .param("page", "1")
                 .param("count", "10")
                 .param("t", "3"))
@@ -183,7 +183,7 @@ public class FeedControllerIntegrationTest {
         when(feedService.getLikesFeed( (new Long(1)), false, 0, 20))
                 .thenReturn(dto);
 
-        mockMvc.perform(get("/feed/likes/"))
+        mockMvc.perform(get("/feed/likes/new"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8))
                 .andExpect(jsonPath("$.users").isArray())
@@ -198,7 +198,7 @@ public class FeedControllerIntegrationTest {
         when(feedService.getLikesFeed( (new Long(1)), false, 1, 10))
                 .thenReturn(dto);
 
-        mockMvc.perform(get("/feed/likes/")
+        mockMvc.perform(get("/feed/likes/new")
                 .param("page", "1")
                 .param("count", "10"))
                 .andExpect(status().isOk())
@@ -207,4 +207,6 @@ public class FeedControllerIntegrationTest {
                 .andExpect(jsonPath("$.tweets").isArray());
 
     }
+
+
 }

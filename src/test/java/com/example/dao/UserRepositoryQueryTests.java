@@ -49,7 +49,7 @@ public class UserRepositoryQueryTests {
 
     @Autowired
     private JpaUserRepository userRepository;
-
+    /*
     @Before
     public void init(){
 
@@ -93,7 +93,7 @@ public class UserRepositoryQueryTests {
             e.printStackTrace();
         }
     }
-
+    /*
     private void initDTOs(){
         userDTOOne = new UserDTO(userOne.getId(), USER_ONE_USERNAME, 0, 2, 2);
         userDTOTwo = new UserDTO(userTwo.getId(), USER_TWO_USERNAME, 0, 1, 1);
@@ -302,4 +302,6 @@ public class UserRepositoryQueryTests {
         assertEquals(newUsers.get(0), userDTOTwo);
 
     }
+
+    */
 }

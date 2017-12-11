@@ -26,7 +26,7 @@ import java.util.Set;
                         @ColumnResult(name = "tweets", type=Integer.class),
                         @ColumnResult(name = "followers", type=Integer.class),
                         @ColumnResult(name = "following", type=Integer.class),
-
+                        @ColumnResult(name = "IFollow", type=boolean.class)
                 })
 })
 @Entity(name = "User")
@@ -100,7 +100,7 @@ public class User implements Serializable {
     public void unlikeTweet(Tweet tweet){
         Like like = new Like(this, tweet);
         if (likes.contains(like)){
-            getLikes().remove(like);
+            likes.remove(like);
         }
     }
 

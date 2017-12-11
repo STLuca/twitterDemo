@@ -45,9 +45,9 @@ public class LikeServiceImp implements LikeService{
     }
 
     @Override
-    public CombinedDTO getUserLikes(String username, boolean old, int page, int count) {
+    public CombinedDTO getUserLikes(String username, Long myID, boolean old, int page, int count) {
         List<Long> userID = getUserIDFromUsernameAsList(username);
-        return CombinedDTO.createFromTweets(tweetRepository.getUsersLikedTweets(userID, old, page, count));
+        return CombinedDTO.createFromTweets(tweetRepository.getUsersLikedTweets(userID, myID, old, page, count));
     }
 
     private List<Long> getUserIDFromUsernameAsList(String username){

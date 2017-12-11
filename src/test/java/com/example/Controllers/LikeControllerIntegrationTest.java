@@ -3,13 +3,16 @@ package com.example.Controllers;
 import com.example.DataTransfer.CombinedDTO;
 import com.example.DataTransfer.TweetDTO;
 import com.example.Service.UserService;
+import com.example.TestConfig.CustomUserDetailsService;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
@@ -27,7 +30,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @RunWith(SpringRunner.class)
-@WebMvcTest(value = LikeController.class, secure = false)
+@Import(value = CustomUserDetailsService.class)
+@WebMvcTest(value = LikeController.class)
 public class LikeControllerIntegrationTest {
 
     @MockBean
@@ -42,6 +46,9 @@ public class LikeControllerIntegrationTest {
     private List<TweetDTO> tweets;
     private CombinedDTO dtoContainer;
 
+    //used from customUserDetailsService
+    private final Long authUserID = new Long(1);
+
     @Before
     public void init() {
 
@@ -52,27 +59,29 @@ public class LikeControllerIntegrationTest {
                 .build();
 
         username = "bob";
-        tweets = Arrays.asList(new TweetDTO(new Long(2), new Long(1), "my tweet message", new Date(), null,1, 1));
+        tweets = Arrays.asList(new TweetDTO(new Long(2), new Long(1), "my tweet message", new Date(), null,1, 1, false));
         dtoContainer = CombinedDTO.createFromTweets(tweets);
     }
 
     @Test
+    @WithUserDetails(value = "bob")
     public void testGetUsersNewLikesDefaultParameters() throws Exception{
-        when(userService.getUserLikes(username, false, 0, 20))
+        when(userService.getUserLikes(username, authUserID,false, 0, 20))
                 .thenReturn(dtoContainer);
 
-        mockMvc.perform(get("/user/" + username + "/likes/new/"))
+        mockMvc.perform(get("/user/" + username + "/tweets/likes/new/"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8))
                 .andExpect(jsonPath("$").isNotEmpty());
     }
 
     @Test
+    @WithUserDetails(value = "bob")
     public void testGetUsersNewLikesCustomParameters() throws Exception{
-        when(userService.getUserLikes(username, false, 1, 10))
+        when(userService.getUserLikes(username, authUserID, false, 1, 10))
                 .thenReturn(dtoContainer);
 
-        mockMvc.perform(get("/user/" + username + "/likes/new/")
+        mockMvc.perform(get("/user/" + username + "/tweets/likes/new/")
                 .param("page", "1")
                 .param("count", "10"))
                 .andExpect(status().isOk())
@@ -81,22 +90,24 @@ public class LikeControllerIntegrationTest {
     }
 
     @Test
+    @WithUserDetails(value = "bob")
     public void testGetUsersOldLikesDefaultParameters() throws Exception{
-        when(userService.getUserLikes(username, true, 0, 20))
+        when(userService.getUserLikes(username, authUserID, true, 0, 20))
                 .thenReturn(dtoContainer);
 
-        mockMvc.perform(get("/user/" + username + "/likes/old/"))
+        mockMvc.perform(get("/user/" + username + "/tweets/likes/old/"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8))
                 .andExpect(jsonPath("$").isNotEmpty());
     }
 
     @Test
+    @WithUserDetails(value = "bob")
     public void testGetUsersOldLikesCustomParameters() throws Exception{
-        when(userService.getUserLikes(username, true, 1, 10))
+        when(userService.getUserLikes(username, authUserID, true, 1, 10))
                 .thenReturn(dtoContainer);
 
-        mockMvc.perform(get("/user/" + username + "/likes/old/")
+        mockMvc.perform(get("/user/" + username + "/tweets/likes/old/")
                 .param("page", "1")
                 .param("count", "10"))
                 .andExpect(status().isOk())

@@ -40,13 +40,13 @@ public class FollowServiceImp implements FollowService{
     }
 
     @Override
-    public CombinedDTO getFollowing(String username, boolean old, int page, int count) {
-        return CombinedDTO.createFromUsers(userRepository.getFollowingByUsername(username, old, page, count));
+    public CombinedDTO getFollowing(String username, Long myID, boolean old, int page, int count) {
+        return CombinedDTO.createFromUsers(userRepository.getFollowingByUsername(username, myID, old, page, count));
     }
 
     @Override
-    public CombinedDTO getFollowers(String username, boolean old, int page, int count) {
-        return CombinedDTO.createFromUsers(userRepository.getFollowersByUsername(username, old, page, count));
+    public CombinedDTO getFollowers(String username, Long myID, boolean old, int page, int count) {
+        return CombinedDTO.createFromUsers(userRepository.getFollowersByUsername(username, myID, old, page, count));
     }
 
 }

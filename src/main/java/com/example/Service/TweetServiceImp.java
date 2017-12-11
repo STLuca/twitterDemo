@@ -14,9 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -30,12 +28,16 @@ public class TweetServiceImp implements TweetService{
     private JpaUserRepository userRepository;
 
     @Override
-    public TweetDTO getTweet(Long id) {
-        List<TweetDTO> tweet = tweetRepository.getTweet(id);
+    public CombinedDTO getTweet(Long id, Long myID) {
+        List<TweetDTO> tweet = tweetRepository.getTweet(id, myID);
         if (tweet.isEmpty()){
             throw new TweetNotFoundException(id);
         } else {
-            return tweet.get(0);
+            Set<Long> userID = new HashSet<>();
+            userID.add(tweet.get(0).getUserID());
+
+            List<UserDTO> user = userRepository.getUsersByIDs(userID, myID);
+            return new CombinedDTO(user, tweet);
         }
     }
 
@@ -66,7 +68,7 @@ public class TweetServiceImp implements TweetService{
                             tweet.getMessage(),
                             tweet.getCreationTimestamp(),
                             replyTo,
-                            0, 0);
+                            0, 0, false);
     }
 
     @Override
@@ -81,36 +83,36 @@ public class TweetServiceImp implements TweetService{
     }
 
     @Override
-    public CombinedDTO getLikedBy(Long tweetID) {
+    public CombinedDTO getLikedBy(Long tweetID, Long myID) {
         Tweet tweet = tweetRepository.findTweetByID(tweetID);
         Set<Long> ids = tweet.getLikedBy().stream().map(Like::getLikedBy).map(User::getId).collect(Collectors.toSet());
         if (ids.isEmpty()){
             return CombinedDTO.emptyCombinedDTO();      //<----------clean up sql query for empty result set
         }
-        return CombinedDTO.createFromUsers(userRepository.getUsersByIDs(ids));
+        return CombinedDTO.createFromUsers(userRepository.getUsersByIDs(ids, myID));
     }
 
     @Override
-    public CombinedDTO getRecentTweetReplies(Long tweetID, boolean asc, int page, int count) {
-        List<TweetDTO> tweets = tweetRepository.getRecentTweetReplies(tweetID, asc, page, count);
+    public CombinedDTO getRecentTweetReplies(Long tweetID, Long myID, boolean asc, int page, int count) {
+        List<TweetDTO> tweets = tweetRepository.getRecentTweetReplies(tweetID, myID, asc, page, count);
         if (tweets.isEmpty()){ return null; }
-        List<UserDTO> users = userRepository.getUsersByIDs(getUserIDsFromTweets(tweets));
+        List<UserDTO> users = userRepository.getUsersByIDs(getUserIDsFromTweets(tweets), myID);
         return new CombinedDTO(users, tweets);
     }
 
     @Override
-    public CombinedDTO getLikedTweetReplies(Long tweetID, boolean asc, int page, int count) {
-        List<TweetDTO> tweets = tweetRepository.getLikedTweetReplies(tweetID, asc, page, count);
+    public CombinedDTO getLikedTweetReplies(Long tweetID, Long myID, boolean asc, int page, int count) {
+        List<TweetDTO> tweets = tweetRepository.getLikedTweetReplies(tweetID, myID, asc, page, count);
         if (tweets.isEmpty()){ return null; }
-        List<UserDTO> users = userRepository.getUsersByIDs(getUserIDsFromTweets(tweets));
+        List<UserDTO> users = userRepository.getUsersByIDs(getUserIDsFromTweets(tweets), myID);
         return new CombinedDTO(users, tweets);
     }
 
     @Override
-    public CombinedDTO getRepliedTweetReplies(Long tweetID, boolean asc, int page, int count) {
-        List<TweetDTO> tweets = tweetRepository.getRepliedTweetReplies(tweetID, asc, page, count);
+    public CombinedDTO getRepliedTweetReplies(Long tweetID, Long myID, boolean asc, int page, int count) {
+        List<TweetDTO> tweets = tweetRepository.getRepliedTweetReplies(tweetID, myID, asc, page, count);
         if (tweets.isEmpty()){ return null; }
-        List<UserDTO> users = userRepository.getUsersByIDs(getUserIDsFromTweets(tweets));
+        List<UserDTO> users = userRepository.getUsersByIDs(getUserIDsFromTweets(tweets), myID);
         return new CombinedDTO(users, tweets);
 
     }

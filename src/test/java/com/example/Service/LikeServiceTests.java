@@ -43,7 +43,7 @@ public class LikeServiceTests {
         testTweet = spy(new Tweet(testUser, "test tweet message"));
         when(testTweet.getId()).thenReturn(new Long(2));
 
-        testTweetDTOs.add(new TweetDTO(new Long(5), new Long(1), "message by bob", new Date(), null, 0, 0));
+        testTweetDTOs.add(new TweetDTO(new Long(5), new Long(1), "message by bob", new Date(), null, 0, 0, false));
     }
 
     @Test

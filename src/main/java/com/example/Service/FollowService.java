@@ -9,7 +9,7 @@ public interface FollowService {
 
     void followUser(Long userID, String followeeUsername);
     void unfollowUser(Long userID, String followeeUsername);
-    CombinedDTO getFollowing(String username, boolean old, int page, int count);
-    CombinedDTO getFollowers(String username, boolean old, int page, int count);
+    CombinedDTO getFollowing(String username, Long myID, boolean old, int page, int count);
+    CombinedDTO getFollowers(String username, Long myID, boolean old, int page, int count);
 
 }

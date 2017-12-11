@@ -20,7 +20,7 @@ public class FollowController {
     UserService userService;
 
     @PostMapping(value = "/follow")
-    @ResponseStatus(HttpStatus.CREATED)
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     public void followUser(@AuthenticationPrincipal CustomUser user, @PathVariable String username){
         userService.followUser(user.getUserID(), username);
     }
@@ -32,31 +32,35 @@ public class FollowController {
     }
 
     @GetMapping(value = "following/old")
-    public CombinedDTO getOldFollowingUsers(@PathVariable String username,
+    public CombinedDTO getOldFollowingUsers(@AuthenticationPrincipal CustomUser user,
+                                            @PathVariable String username,
                                             @RequestParam(name = "page", required = false, defaultValue = "0") int page,
                                             @RequestParam(name = "count", required = false, defaultValue = "20") int count){
-        return userService.getFollowing(username, true, page, count );
+        return userService.getFollowing(username, user.getUserID(), true, page, count );
     }
 
     @GetMapping(value = "following/new")
-    public CombinedDTO getNewFollowingUsers(@PathVariable String username,
+    public CombinedDTO getNewFollowingUsers(@AuthenticationPrincipal CustomUser user,
+                                        @PathVariable String username,
                                         @RequestParam(name = "page", required = false, defaultValue = "0") int page,
                                         @RequestParam(name = "count", required = false, defaultValue = "20") int count){
-        return userService.getFollowing(username, false, page, count );
+        return userService.getFollowing(username, user.getUserID(), false, page, count );
     }
 
     @GetMapping(value = "followers/old")
-    public CombinedDTO getOldFollowers(@PathVariable String username,
+    public CombinedDTO getOldFollowers(@AuthenticationPrincipal CustomUser user,
+                                        @PathVariable String username,
                                         @RequestParam(name = "page", required = false, defaultValue = "0") int page,
                                         @RequestParam(name = "count", required = false, defaultValue = "20") int count){
-        return userService.getFollowers(username, true, page, count );
+        return userService.getFollowers(username, user.getUserID(),true, page, count );
     }
 
     @GetMapping(value = "followers/new")
-    public CombinedDTO getNewFollowers(@PathVariable String username,
+    public CombinedDTO getNewFollowers(@AuthenticationPrincipal CustomUser user,
+                                        @PathVariable String username,
                                         @RequestParam(name = "page", required = false, defaultValue = "0") int page,
                                         @RequestParam(name = "count", required = false, defaultValue = "20") int count){
-        return userService.getFollowers(username, false, page, count );
+        return userService.getFollowers(username, user.getUserID(),false, page, count );
     }
 
 }

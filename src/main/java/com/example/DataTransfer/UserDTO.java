@@ -8,15 +8,15 @@ public class UserDTO {
     private final int numOfTweets;
     private final int numOfFollowers;
     private final int numOfFollowing;
+    private final boolean iFollowing;
 
-
-    public UserDTO(Long id, String username, int tweets, int followers,  int following) {
+    public UserDTO(Long id, String username, int tweets, int followers,  int following, boolean IFollowing) {
         this.id = id;
         this.username = username;
         this.numOfTweets = tweets;
         this.numOfFollowers = followers;
         this.numOfFollowing = following;
-
+        this.iFollowing = IFollowing;
     }
 
     public Long getId() {
@@ -39,6 +39,8 @@ public class UserDTO {
         return numOfFollowing;
     }
 
+    public boolean getiFollowing() { return iFollowing; }
+
     @Override
     public boolean equals(Object o) {
         if (o == this){return true;}
@@ -48,7 +50,8 @@ public class UserDTO {
                 user.username.equals(this.username) &&
                 user.numOfTweets == this.numOfTweets &&
                 user.numOfFollowing == this.numOfFollowing &&
-                user.numOfFollowers == this.numOfFollowers;
+                user.numOfFollowers == this.numOfFollowers &&
+                user.iFollowing == this.iFollowing;
     }
 
     @Override

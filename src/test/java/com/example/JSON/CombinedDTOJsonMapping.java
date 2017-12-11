@@ -26,12 +26,13 @@ public class CombinedDTOJsonMapping {
 
     @Test
     public void testSerialize() throws Exception{
-        List<UserDTO> users = Arrays.asList(new UserDTO(new Long(1), "bob", 1, 2, 3));
-        List<TweetDTO> tweets = Arrays.asList(new TweetDTO(new Long(2), new Long(1), "tweet message", new Date(), null, 3, 3));
+        List<UserDTO> users = Arrays.asList(new UserDTO(new Long(1), "bob", 1, 2, 3, false));
+        List<TweetDTO> tweets = Arrays.asList(new TweetDTO(new Long(2), new Long(1), "tweet message", new Date(), null, 3, 3, false));
         CombinedDTO returnValue = new CombinedDTO(users, tweets);
         JsonContent<CombinedDTO> jsonValue = this.json.write(returnValue);
         assertThat(jsonValue).hasJsonPathArrayValue("@.users");
         assertThat(jsonValue).hasJsonPathArrayValue("@.tweets");
 
     }
+
 }

@@ -33,7 +33,7 @@ public class FeedServiceImp implements FeedService{
     public CombinedDTO getRecentFeed(Long id, boolean asc, int page, int count) {
 
         List<UserDTO> users = getAllFollowedUsers(id);
-        List<TweetDTO> tweets = tweetRepository.getRecentTweetsByUsers(getIDsOfUsers(users), asc, page, count);
+        List<TweetDTO> tweets = tweetRepository.getRecentTweetsByUsers(getIDsOfUsers(users), id, asc, page, count);
 
         List<UserDTO> neededUsers = filterUnnecessaryUsers(users, tweets);
         return new CombinedDTO(neededUsers, tweets);
@@ -44,7 +44,7 @@ public class FeedServiceImp implements FeedService{
 
         Date date = timeVariant.getDateFromXDaysAgo(withinDays);
         List<UserDTO> users = getAllFollowedUsers(id);
-        List<TweetDTO> tweets = tweetRepository.getLikedTweetsByUsers(getIDsOfUsers(users), asc, date, page, count);
+        List<TweetDTO> tweets = tweetRepository.getLikedTweetsByUsers(getIDsOfUsers(users), id, asc, date, page, count);
 
         List<UserDTO> neededUsers = filterUnnecessaryUsers(users, tweets);
         return new CombinedDTO(neededUsers, tweets);
@@ -55,7 +55,7 @@ public class FeedServiceImp implements FeedService{
 
         Date date = timeVariant.getDateFromXDaysAgo(withinDays);
         List<UserDTO> users = getAllFollowedUsers(id);
-        List<TweetDTO> tweets = tweetRepository.getRepliedTweetsByUsers(getIDsOfUsers(users), asc, date, page, count);
+        List<TweetDTO> tweets = tweetRepository.getRepliedTweetsByUsers(getIDsOfUsers(users), id, asc, date, page, count);
         List<UserDTO> neededUsers = filterUnnecessaryUsers(users, tweets);
 
         return new CombinedDTO(neededUsers, tweets);
@@ -65,14 +65,14 @@ public class FeedServiceImp implements FeedService{
     public CombinedDTO getLikesFeed(Long id, boolean asc, int page, int count) {
 
         List<UserDTO> users = getAllFollowedUsers(id);
-        List<TweetDTO> tweets = tweetRepository.getUsersLikedTweets(getIDsOfUsers(users), asc, page, count);
+        List<TweetDTO> tweets = tweetRepository.getUsersLikedTweets(getIDsOfUsers(users), id, asc, page, count);
         List<UserDTO> neededUsers = filterUnnecessaryUsers(users, tweets);
         return new CombinedDTO(neededUsers, tweets);
 
     }
 
     private List<UserDTO> getAllFollowedUsers(Long userID){
-        return userRepository.getFollowingByID(userID, false, 0, Integer.MAX_VALUE);
+        return userRepository.getFollowingByID(userID, userID, false, 0, Integer.MAX_VALUE);
     }
 
     private List<Long> getIDsOfUsers(List<UserDTO> users){

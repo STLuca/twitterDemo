@@ -9,6 +9,7 @@ import org.springframework.stereotype.Repository;
 
 import javax.persistence.*;
 import javax.persistence.criteria.*;
+import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
@@ -101,59 +102,90 @@ public class UserRepositoryImp implements JpaUserRepository{
 
 
     @Override
-    public List<UserDTO> getUserByUsername(String username) {
+    public List<UserDTO> getUserByUsername(String username, Long myID) {
         String qs = "" +
-                "SELECT * FROM usersSummary u   \n" +
+                "SELECT u.*, u.id IN                                                            \n" +
+                "   (SELECT f.followee_id FROM follows f WHERE f.follower_id = :myID) IFollow   \n" +
+                " FROM usersSummary u   \n" +
                 "WHERE u.username = :username";
         Query query = em.createNativeQuery(qs, "UserDTOMapping")
-                .setParameter("username", username);
+                .setParameter("username", username)
+                .setParameter("myID", myID);
         return query.getResultList();
 
     }
 
     @Override
-    public List<UserDTO> getUsersByIDs(Set<Long> ids) {
+    public List<UserDTO> getUsersByIDs(Set<Long> ids, Long myID) {
         String qs = "" +
-                "SELECT * FROM usersSummary u   \n" +
-                "WHERE u.id IN (:ids)           ";
+                "SELECT u.*, u.id IN                                                            \n" +
+                "   (SELECT f.followee_id FROM follows f WHERE f.follower_id = :myID) IFollow   \n" +
+                "FROM usersSummary u                                                            \n" +
+                "WHERE u.id IN (:ids)                             ";
         Query query = em.createNativeQuery(qs, "UserDTOMapping")
-                .setParameter("ids", ids);
+                .setParameter("ids", ids)
+                .setParameter("myID", myID);
         return  query.getResultList();
     }
 
-    public List<UserDTO> getFollowingByUsername(String username, boolean old, int page, int count){
+    public void followUser(Long userID, Long myID){
+        String qs = "INSERT IGNORE INTO follows " +
+                    "VALUES (:userID, :myID, :date)";
+        Query query = em.createNativeQuery(qs)
+                .setParameter("userID", userID)
+                .setParameter("myID", myID)
+                .setParameter("date", new Date());
+        query.executeUpdate();
+    }
+
+    public void unfollowUser(Long userID, Long myID){
+        String qs = "DELETE FROM follows " +
+                    "WHERE followee_id = :userID AND follower_id = :myID";
+        Query query = em.createNativeQuery(qs)
+                .setParameter("userID", userID)
+                .setParameter("myID", myID);
+        query.executeUpdate();
+    }
+
+    public List<UserDTO> getFollowingByUsername(String username, Long myID, boolean old, int page, int count){
         User user = findByUsername(username);
-        return getFollowingByID(user.getId(), old, page, count);
+        return getFollowingByID(user.getId(), myID, old, page, count);
     }
 
     @Override
-    public List<UserDTO> getFollowingByID(Long id, boolean old, int page, int count) {
+    public List<UserDTO> getFollowingByID(Long userID, Long myID, boolean old, int page, int count) {
         String qs = "" +
-                "SELECT * FROM usersSummary u                   \n" +
+                "SELECT u.*, u.id IN                                                            \n" +
+                "   (SELECT f.followee_id FROM follows f WHERE f.follower_id = :myID) IFollow   \n" +
+                " FROM usersSummary u                           \n" +
                 "   JOIN follows f ON u.id = f.followee_id      \n" +
-                "   WHERE f.follower_id = :id                   \n" +
+                "   WHERE f.follower_id = :userID                   \n" +
                 "   ORDER BY f.ts ";
         qs = qs + (old ? "ASC" : "DESC");
         Query query = em.createNativeQuery(qs, "UserDTOMapping")
-                .setParameter("id", id);
+                .setParameter("userID", userID)
+                .setParameter("myID", myID);
         return getPagedQueryResults(query, page, count);
     }
 
-    public List<UserDTO> getFollowersByUsername(String username, boolean old, int page, int count){
+    public List<UserDTO> getFollowersByUsername(String username, Long myID, boolean old, int page, int count){
         User user = findByUsername(username);
-        return getFollowersByID(user.getId(), old, page, count);
+        return getFollowersByID(user.getId(), myID, old, page, count);
     }
 
     @Override
-    public List<UserDTO> getFollowersByID(Long id, boolean old, int page, int count) {
+    public List<UserDTO> getFollowersByID(Long userID, Long myID, boolean old, int page, int count) {
         String qs = "" +
-                "SELECT * FROM usersSummary u                   \n" +
+                "SELECT u.*, u.id IN                                                            \n" +
+                "   (SELECT f.followee_id FROM follows f WHERE f.follower_id = :myID) IFollow   \n" +
+                " FROM usersSummary u                           \n" +
                 "   JOIN follows f ON u.id = f.follower_id      \n" +
-                "   WHERE f.followee_id = :id                   \n" +
+                "   WHERE f.followee_id = :userID               \n" +
                 "   ORDER BY f.ts ";
         qs = qs + (old ? "ASC" : "DESC");
         Query query = em.createNativeQuery(qs, "UserDTOMapping")
-                .setParameter("id", id);
+                .setParameter("userID", userID)
+                .setParameter("myID", myID);
         return getPagedQueryResults(query, page, count);
 
     }

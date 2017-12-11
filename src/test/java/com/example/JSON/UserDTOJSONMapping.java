@@ -23,23 +23,25 @@ public class UserDTOJSONMapping {
     private int numOfFollowers = 3;
     private int numOfFollowing = 5;
     private int numOfTweets = 10;
+    private boolean iFollow = false;
 
     @Test
     public void testSerialize() throws Exception {
-        UserDTO user = new UserDTO(id, username, numOfTweets, numOfFollowers, numOfFollowing);
+        UserDTO user = new UserDTO(id, username, numOfTweets, numOfFollowers, numOfFollowing, iFollow);
         JsonContent<UserDTO> jsonValue = this.json.write(user);
         assertThat(jsonValue).hasJsonPathNumberValue("@.id");
         assertThat(jsonValue).hasJsonPathStringValue("@.username");
         assertThat(jsonValue).hasJsonPathNumberValue("@.numOfTweets");
         assertThat(jsonValue).hasJsonPathNumberValue("@.numOfFollowers");
         assertThat(jsonValue).hasJsonPathNumberValue("@.numOfFollowing");
+        assertThat(jsonValue).hasJsonPathBooleanValue("@.iFollowing");
 
         assertThat(jsonValue).extractingJsonPathNumberValue("@.id").isEqualTo(id.intValue());
         assertThat(jsonValue).extractingJsonPathStringValue("@.username").isEqualTo(username);
         assertThat(jsonValue).extractingJsonPathNumberValue("@.numOfTweets").isEqualTo(numOfTweets);
         assertThat(jsonValue).extractingJsonPathNumberValue("@.numOfFollowers").isEqualTo(numOfFollowers);
         assertThat(jsonValue).extractingJsonPathNumberValue("@.numOfFollowing").isEqualTo(numOfFollowing);
-
+        assertThat(jsonValue).extractingJsonPathBooleanValue("@.iFollowing").isEqualTo(iFollow);
     }
 
 }

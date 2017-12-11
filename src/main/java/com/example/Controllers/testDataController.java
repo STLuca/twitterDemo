@@ -102,6 +102,7 @@ public class testDataController {
                 if (!user.equals(user2)){
                     if (rand.nextBoolean()){
                         userService.followUser(user.getId(), user2.getUsername());
+
                         waitXMilliseconds(101);
                     }
                 }

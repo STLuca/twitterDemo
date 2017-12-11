@@ -27,26 +27,29 @@ public class TweetDTOJSONMapping {
     private Date timestamp = new Date();
     private int likes = 3;
     private int replies = 5;
+    private boolean iLiked = false;
 
     @Test
     public void testSerialize() throws Exception {
-        TweetDTO tweet = new TweetDTO(tweetID, userID, message, timestamp, replyId, likes, replies);
+        TweetDTO tweet = new TweetDTO(tweetID, userID, message, timestamp, replyId, likes, replies, iLiked);
         JsonContent<TweetDTO> jsonValue = this.json.write(tweet);
         assertThat(jsonValue).hasJsonPathNumberValue("@.id");
         assertThat(jsonValue).hasJsonPathNumberValue("@.userID");
         assertThat(jsonValue).hasJsonPathStringValue("@.message");
-        assertThat(jsonValue).hasJsonPathNumberValue("@.timestamp");
+        assertThat(jsonValue).hasJsonPathStringValue("@.timestamp");
         assertThat(jsonValue).hasJsonPathNumberValue("@.replyTo");
         assertThat(jsonValue).hasJsonPathNumberValue("@.numOfLikes");
         assertThat(jsonValue).hasJsonPathNumberValue("@.numOfReplies");
+        assertThat(jsonValue).hasJsonPathBooleanValue("@.iLiked");
 
         assertThat(jsonValue).extractingJsonPathNumberValue("@.id").isEqualTo(tweetID.intValue());
         assertThat(jsonValue).extractingJsonPathNumberValue("@.userID").isEqualTo(userID.intValue());
         assertThat(jsonValue).extractingJsonPathStringValue("@.message").isEqualTo(message);
-        assertThat(jsonValue).extractingJsonPathNumberValue("@.timestamp").isEqualTo(timestamp.getTime());
+        assertThat(jsonValue).extractingJsonPathStringValue("@.timestamp").isEqualTo(timestamp.toString());
         assertThat(jsonValue).extractingJsonPathNumberValue("@.replyTo").isEqualTo(replyId.intValue());
         assertThat(jsonValue).extractingJsonPathNumberValue("@.numOfLikes").isEqualTo(likes);
         assertThat(jsonValue).extractingJsonPathNumberValue("@.numOfReplies").isEqualTo(replies);
+        assertThat(jsonValue).extractingJsonPathBooleanValue("@.iLiked").isEqualTo(iLiked);
     }
 
 }

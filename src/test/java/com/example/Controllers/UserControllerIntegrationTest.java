@@ -4,6 +4,7 @@ import com.example.DataTransfer.CombinedDTO;
 import com.example.DataTransfer.TweetDTO;
 import com.example.DataTransfer.UserDTO;
 import com.example.Service.UserService;
+import com.example.TestConfig.CustomUserDetailsService;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -11,8 +12,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 //import org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -40,7 +43,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 
 @RunWith(SpringRunner.class)
-@WebMvcTest(value = UserController.class, secure = false)
+@Import(value = CustomUserDetailsService.class)
+@WebMvcTest(value = UserController.class)
 public class UserControllerIntegrationTest {
 
     @MockBean
@@ -56,6 +60,9 @@ public class UserControllerIntegrationTest {
     private List<TweetDTO> tweetDTOs = new ArrayList<>();
     private CombinedDTO tweetDTOContainer;
 
+    //used from customUserDetailsService
+    private final Long authUserID = new Long(1);
+
     @Before
     public void init(){
 
@@ -66,14 +73,15 @@ public class UserControllerIntegrationTest {
                 .build();
 
         testDate = new Date();
-        testUserDTO = new UserDTO(new Long(1), "Bob", 1, 2, 3);
-        tweetDTOs.add(new TweetDTO(new Long(2), new Long(1), "my tweet message", testDate, null,1, 1));
+        testUserDTO = new UserDTO(new Long(1), "Bob", 1, 2, 3, false);
+        tweetDTOs.add(new TweetDTO(new Long(2), new Long(1), "my tweet message", testDate, null,1, 1, false));
         this.tweetDTOContainer = CombinedDTO.createFromTweets(tweetDTOs);
     }
 
     @Test
+    @WithUserDetails(value = "bob")
     public void testGetUser() throws Exception{
-        when(userService.getUser(testUserDTO.getUsername()))
+        when(userService.getUser(testUserDTO.getUsername(), authUserID))
                 .thenReturn(testUserDTO);
 
 
@@ -89,122 +97,129 @@ public class UserControllerIntegrationTest {
     }
 
     @Test
+    @WithUserDetails(value = "bob")
     public void testGetUserRecentTweets() throws Exception{
-        when(userService.getRecentTweetsByUser(testUserDTO.getUsername(), false, 0, 20))
+        when(userService.getRecentTweetsByUser(testUserDTO.getUsername(), authUserID, false, 0, 20))
                 .thenReturn(tweetDTOContainer);
         TweetDTO tweet = tweetDTOs.get(0);
 
 
-        mockMvc.perform(get("/user/" + testUserDTO.getUsername() + "/tweets/recent/"))
+        mockMvc.perform(get("/user/" + testUserDTO.getUsername() + "/tweets/recent/new"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8))
-                .andExpect(jsonPath("$[0].id").value(tweet.getId()))
-                .andExpect(jsonPath("$[0].userID").value(tweet.getUserID()))
-                .andExpect(jsonPath("$[0].message").value(tweet.getMessage()))
-                .andExpect(jsonPath("$[0].timestamp").value(tweet.getTimestamp()))
-                .andExpect(jsonPath("$[0].replyTo").value(tweet.getReplyTo()))
-                .andExpect(jsonPath("$[0].numOfLikes").value(tweet.getNumOfLikes()))
-                .andExpect(jsonPath("$[0].numOfReplies").value(tweet.getNumOfReplies()));
+                .andExpect(jsonPath("$['tweets'][0].id").value(tweet.getId()))
+                .andExpect(jsonPath("$['tweets'][0].userID").value(tweet.getUserID()))
+                .andExpect(jsonPath("$['tweets'][0].message").value(tweet.getMessage()))
+                .andExpect(jsonPath("$['tweets'][0].timestamp").value(tweet.getTimestamp()))
+                .andExpect(jsonPath("$['tweets'][0].replyTo").value(tweet.getReplyTo()))
+                .andExpect(jsonPath("$['tweets'][0].numOfLikes").value(tweet.getNumOfLikes()))
+                .andExpect(jsonPath("$['tweets'][0].numOfReplies").value(tweet.getNumOfReplies()));
 
     }
 
     @Test
+    @WithUserDetails(value = "bob")
     public void testGetUserRecentTweetsWithParameters() throws Exception{
-        when(userService.getRecentTweetsByUser(testUserDTO.getUsername(), false, 1, 10))
+        when(userService.getRecentTweetsByUser(testUserDTO.getUsername(), authUserID, false, 1, 10))
                 .thenReturn(tweetDTOContainer);
         TweetDTO tweet = tweetDTOs.get(0);
 
 
-        mockMvc.perform(get("/user/" + testUserDTO.getUsername() + "/tweets/recent/?page=1&count=10"))
+        mockMvc.perform(get("/user/" + testUserDTO.getUsername() + "/tweets/recent/new?page=1&count=10"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8))
-                .andExpect(jsonPath("$[0].id").value(tweet.getId()))
-                .andExpect(jsonPath("$[0].userID").value(tweet.getUserID()))
-                .andExpect(jsonPath("$[0].message").value(tweet.getMessage()))
-                .andExpect(jsonPath("$[0].timestamp").value(tweet.getTimestamp()))
-                .andExpect(jsonPath("$[0].replyTo").value(tweet.getReplyTo()))
-                .andExpect(jsonPath("$[0].numOfLikes").value(tweet.getNumOfLikes()))
-                .andExpect(jsonPath("$[0].numOfReplies").value(tweet.getNumOfReplies()));
+                .andExpect(jsonPath("$['tweets'][0].id").value(tweet.getId()))
+                .andExpect(jsonPath("$['tweets'][0].userID").value(tweet.getUserID()))
+                .andExpect(jsonPath("$['tweets'][0].message").value(tweet.getMessage()))
+                .andExpect(jsonPath("$['tweets'][0].timestamp").value(tweet.getTimestamp()))
+                .andExpect(jsonPath("$['tweets'][0].replyTo").value(tweet.getReplyTo()))
+                .andExpect(jsonPath("$['tweets'][0].numOfLikes").value(tweet.getNumOfLikes()))
+                .andExpect(jsonPath("$['tweets'][0].numOfReplies").value(tweet.getNumOfReplies()));
 
     }
 
     @Test
+    @WithUserDetails(value = "bob")
     public void testGetUserLikedTweetsNoParameters() throws Exception{
-        when(userService.getLikedTweetsByUser(testUserDTO.getUsername(),false, 1, 0, 20))
+        when(userService.getLikedTweetsByUser(testUserDTO.getUsername(), authUserID, false, 1, 0, 20))
                 .thenReturn(tweetDTOContainer);
         TweetDTO tweet = tweetDTOs.get(0);
 
 
-        mockMvc.perform(get("/user/" + testUserDTO.getUsername() + "/tweets/liked/"))
+        mockMvc.perform(get("/user/" + testUserDTO.getUsername() + "/tweets/liked/most"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8))
-                .andExpect(jsonPath("$[0].id").value(tweet.getId()))
-                .andExpect(jsonPath("$[0].userID").value(tweet.getUserID()))
-                .andExpect(jsonPath("$[0].message").value(tweet.getMessage()))
-                .andExpect(jsonPath("$[0].timestamp").value(tweet.getTimestamp()))
-                .andExpect(jsonPath("$[0].replyTo").value(tweet.getReplyTo()))
-                .andExpect(jsonPath("$[0].numOfLikes").value(tweet.getNumOfLikes()))
-                .andExpect(jsonPath("$[0].numOfReplies").value(tweet.getNumOfReplies()));
+                .andExpect(jsonPath("$['tweets'][0].id").value(tweet.getId()))
+                .andExpect(jsonPath("$['tweets'][0].userID").value(tweet.getUserID()))
+                .andExpect(jsonPath("$['tweets'][0].message").value(tweet.getMessage()))
+                .andExpect(jsonPath("$['tweets'][0].timestamp").value(tweet.getTimestamp()))
+                .andExpect(jsonPath("$['tweets'][0].replyTo").value(tweet.getReplyTo()))
+                .andExpect(jsonPath("$['tweets'][0].numOfLikes").value(tweet.getNumOfLikes()))
+                .andExpect(jsonPath("$['tweets'][0].numOfReplies").value(tweet.getNumOfReplies()));
 
     }
 
     @Test
+    @WithUserDetails(value = "bob")
     public void testGetUserLikedTweetsWithParameters() throws Exception{
-        when(userService.getLikedTweetsByUser(testUserDTO.getUsername(), false, 3,1, 10))
+        when(userService.getLikedTweetsByUser(testUserDTO.getUsername(), authUserID, false, 3,1, 10))
                 .thenReturn(tweetDTOContainer);
         TweetDTO tweet = tweetDTOs.get(0);
 
 
-        mockMvc.perform(get("/user/" + testUserDTO.getUsername() + "/tweets/liked/?t=3&page=1&count=10"))
+        mockMvc.perform(get("/user/" + testUserDTO.getUsername() + "/tweets/liked/most?t=3&page=1&count=10"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8))
-                .andExpect(jsonPath("$[0].id").value(tweet.getId()))
-                .andExpect(jsonPath("$[0].userID").value(tweet.getUserID()))
-                .andExpect(jsonPath("$[0].message").value(tweet.getMessage()))
-                .andExpect(jsonPath("$[0].timestamp").value(tweet.getTimestamp()))
-                .andExpect(jsonPath("$[0].replyTo").value(tweet.getReplyTo()))
-                .andExpect(jsonPath("$[0].numOfLikes").value(tweet.getNumOfLikes()))
-                .andExpect(jsonPath("$[0].numOfReplies").value(tweet.getNumOfReplies()));
+                .andExpect(jsonPath("$['tweets'][0].id").value(tweet.getId()))
+                .andExpect(jsonPath("$['tweets'][0].userID").value(tweet.getUserID()))
+                .andExpect(jsonPath("$['tweets'][0].message").value(tweet.getMessage()))
+                .andExpect(jsonPath("$['tweets'][0].timestamp").value(tweet.getTimestamp()))
+                .andExpect(jsonPath("$['tweets'][0].replyTo").value(tweet.getReplyTo()))
+                .andExpect(jsonPath("$['tweets'][0].numOfLikes").value(tweet.getNumOfLikes()))
+                .andExpect(jsonPath("$['tweets'][0].numOfReplies").value(tweet.getNumOfReplies()));
 
     }
 
     @Test
+    @WithUserDetails(value = "bob")
     public void testGetUserRepliedTweets() throws Exception{
-        when(userService.getRepliedTweetsByUser(testUserDTO.getUsername(), false, 1,0, 20))
+        when(userService.getRepliedTweetsByUser(testUserDTO.getUsername(), authUserID, false, 1,0, 20))
                 .thenReturn(tweetDTOContainer);
         TweetDTO tweet = tweetDTOs.get(0);
 
 
-        mockMvc.perform(get("/user/" + testUserDTO.getUsername() + "/tweets/replied/"))
+        mockMvc.perform(get("/user/" + testUserDTO.getUsername() + "/tweets/replied/most"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8))
-                .andExpect(jsonPath("$[0].id").value(tweet.getId()))
-                .andExpect(jsonPath("$[0].userID").value(tweet.getUserID()))
-                .andExpect(jsonPath("$[0].message").value(tweet.getMessage()))
-                .andExpect(jsonPath("$[0].timestamp").value(tweet.getTimestamp()))
-                .andExpect(jsonPath("$[0].replyTo").value(tweet.getReplyTo()))
-                .andExpect(jsonPath("$[0].numOfLikes").value(tweet.getNumOfLikes()))
-                .andExpect(jsonPath("$[0].numOfReplies").value(tweet.getNumOfReplies()));
+                .andExpect(jsonPath("$['tweets'][0].id").value(tweet.getId()))
+                .andExpect(jsonPath("$['tweets'][0].userID").value(tweet.getUserID()))
+                .andExpect(jsonPath("$['tweets'][0].message").value(tweet.getMessage()))
+                .andExpect(jsonPath("$['tweets'][0].timestamp").value(tweet.getTimestamp()))
+                .andExpect(jsonPath("$['tweets'][0].replyTo").value(tweet.getReplyTo()))
+                .andExpect(jsonPath("$['tweets'][0].numOfLikes").value(tweet.getNumOfLikes()))
+                .andExpect(jsonPath("$['tweets'][0].numOfReplies").value(tweet.getNumOfReplies()));
 
     }
 
     @Test
+    @WithUserDetails(value = "bob")
     public void testGetUserRepliedTweetsWithParameters() throws Exception{
-        when(userService.getRepliedTweetsByUser(testUserDTO.getUsername(), false, 3,1, 10))
+        when(userService.getRepliedTweetsByUser(testUserDTO.getUsername(), authUserID, false, 3,1, 10))
                 .thenReturn(tweetDTOContainer);
         TweetDTO tweet = tweetDTOs.get(0);
 
 
-        mockMvc.perform(get("/user/" + testUserDTO.getUsername() + "/tweets/replied/?t=3&page=1&count=10"))
+        mockMvc.perform(get("/user/" + testUserDTO.getUsername() + "/tweets/replied/most?t=3&page=1&count=10"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8))
-                .andExpect(jsonPath("$[0].id").value(tweet.getId()))
-                .andExpect(jsonPath("$[0].userID").value(tweet.getUserID()))
-                .andExpect(jsonPath("$[0].message").value(tweet.getMessage()))
-                .andExpect(jsonPath("$[0].timestamp").value(tweet.getTimestamp()))
-                .andExpect(jsonPath("$[0].replyTo").value(tweet.getReplyTo()))
-                .andExpect(jsonPath("$[0].numOfLikes").value(tweet.getNumOfLikes()))
-                .andExpect(jsonPath("$[0].numOfReplies").value(tweet.getNumOfReplies()));
+                .andExpect(jsonPath("$['tweets'][0].id").value(tweet.getId()))
+                .andExpect(jsonPath("$['tweets'][0].userID").value(tweet.getUserID()))
+                .andExpect(jsonPath("$['tweets'][0].message").value(tweet.getMessage()))
+                .andExpect(jsonPath("$['tweets'][0].timestamp").value(tweet.getTimestamp()))
+                .andExpect(jsonPath("$['tweets'][0].replyTo").value(tweet.getReplyTo()))
+                .andExpect(jsonPath("$['tweets'][0].numOfLikes").value(tweet.getNumOfLikes()))
+                .andExpect(jsonPath("$['tweets'][0].numOfReplies").value(tweet.getNumOfReplies()));
 
     }
+
 }

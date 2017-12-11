@@ -9,6 +9,6 @@ public interface LikeService {
 
     void likeTweet(Long userID, Long tweetID);
     void unlikeTweet(Long userID, Long tweetID);
-    CombinedDTO getUserLikes(String username, boolean old, int page, int count);
+    CombinedDTO getUserLikes(String username, Long myID, boolean old, int page, int count);
 
 }

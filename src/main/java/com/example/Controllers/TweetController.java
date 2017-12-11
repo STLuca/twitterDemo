@@ -39,8 +39,8 @@ public class TweetController {
     }
 
     @GetMapping(value = "/{id}")
-    public TweetDTO getTweet(@PathVariable Long id){
-        TweetDTO tweet = tweetService.getTweet(id);
+    public CombinedDTO getTweet(@AuthenticationPrincipal CustomUser customUser, @PathVariable Long id){
+        CombinedDTO tweet = tweetService.getTweet(id, customUser.getUserID());
         return tweet;
     }
 
@@ -54,13 +54,13 @@ public class TweetController {
     //Change tweet service to see old or new likes, atm only new likes
 
     @GetMapping(value = "/{id}/replies/likes/new")
-    public CombinedDTO getNewTweetLikes(@PathVariable Long id){
-        return tweetService.getLikedBy(id);
+    public CombinedDTO getNewTweetLikes(@PathVariable Long id,  @AuthenticationPrincipal CustomUser user){
+        return tweetService.getLikedBy(id, user.getUserID());
     }
 
     @GetMapping(value = "/{id}/replies/likes/old")
-    public CombinedDTO getOldTweetLikes(@PathVariable Long id){
-        return tweetService.getLikedBy(id);
+    public CombinedDTO getOldTweetLikes(@PathVariable Long id, @AuthenticationPrincipal CustomUser user){
+        return tweetService.getLikedBy(id, user.getUserID());
     }
 
 
@@ -68,49 +68,55 @@ public class TweetController {
 
     @GetMapping(value = "/{tweetID}/replies/recent/old")
     public CombinedDTO getRepliesOfTweetbyOldest(
+            @AuthenticationPrincipal CustomUser user,
             @PathVariable Long tweetID,
             @RequestParam(name = "page", required = false, defaultValue = "0") int page,
             @RequestParam(name = "count", required = false, defaultValue = "20") int count){
-        return tweetService.getRecentTweetReplies(tweetID, true, page, count);
+        return tweetService.getRecentTweetReplies(tweetID, user.getUserID(), true, page, count);
     }
 
     @GetMapping(value = "/{tweetID}/replies/recent/new")
     public CombinedDTO getRepliesOfTweetbyRecent(
+            @AuthenticationPrincipal CustomUser user,
             @PathVariable Long tweetID,
             @RequestParam(name = "page", required = false, defaultValue = "0") int page,
             @RequestParam(name = "count", required = false, defaultValue = "20") int count){
-        return tweetService.getRecentTweetReplies(tweetID, false, page, count);
+        return tweetService.getRecentTweetReplies(tweetID, user.getUserID(), false, page, count);
     }
 
     @GetMapping(value = "/{tweetID}/replies/liked/most")
     public CombinedDTO getRepliesOfTweetbyMostLikes(
+            @AuthenticationPrincipal CustomUser user,
             @PathVariable Long tweetID,
             @RequestParam(name = "page", required = false, defaultValue = "0") int page,
             @RequestParam(name = "count", required = false, defaultValue = "20") int count){
-        return tweetService.getLikedTweetReplies(tweetID, false, page, count);
+        return tweetService.getLikedTweetReplies(tweetID, user.getUserID(), false, page, count);
     }
 
     @GetMapping(value = "/{tweetID}/replies/liked/least")
     public CombinedDTO getRepliesOfTweetbyLeastLikes(
+            @AuthenticationPrincipal CustomUser user,
             @PathVariable Long tweetID,
             @RequestParam(name = "page", required = false, defaultValue = "0") int page,
             @RequestParam(name = "count", required = false, defaultValue = "20") int count){
-        return tweetService.getLikedTweetReplies(tweetID, true, page, count);
+        return tweetService.getLikedTweetReplies(tweetID, user.getUserID(), true, page, count);
     }
 
     @GetMapping(value = "/{tweetID}/replies/replied/most")
     public CombinedDTO getRepliesOfTweetbyMostReplies(
+            @AuthenticationPrincipal CustomUser user,
             @PathVariable Long tweetID,
             @RequestParam(name = "page", required = false, defaultValue = "0") int page,
             @RequestParam(name = "count", required = false, defaultValue = "20") int count){
-        return tweetService.getRepliedTweetReplies(tweetID, false, page, count);
+        return tweetService.getRepliedTweetReplies(tweetID, user.getUserID(), false, page, count);
     }
 
     @GetMapping(value = "/{tweetID}/replies/replied/least")
     public CombinedDTO getRepliesOfTweetbyLeastReplies(
+            @AuthenticationPrincipal CustomUser user,
             @PathVariable Long tweetID,
             @RequestParam(name = "page", required = false, defaultValue = "0") int page,
             @RequestParam(name = "count", required = false, defaultValue = "20") int count){
-        return tweetService.getRepliedTweetReplies(tweetID, true, page, count);
+        return tweetService.getRepliedTweetReplies(tweetID, user.getUserID(), true, page, count);
     }
 }

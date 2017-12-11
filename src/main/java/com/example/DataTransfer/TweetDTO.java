@@ -8,22 +8,24 @@ public class TweetDTO {
     private final Long id;
     private final Long userID;
     private final String message;
-    private final Date timestamp;
+    private final String timestamp;
     private final Long replyTo;
     private final int numOfLikes;
     private final int numOfReplies;
+    private final boolean iLiked;
 
-    public TweetDTO(Long id, Long userID, String message, Date timestamp, Long replyTo, int likes, int replies) {
+    public TweetDTO(Long id, Long userID, String message, Date timestamp, Long replyTo, int likes, int replies, boolean ILiked) {
 
         Long replyToID = replyTo == null ? 0 : replyTo;
 
         this.id = id;
         this.userID = userID;
         this.message = message;
-        this.timestamp = timestamp;
+        this.timestamp = timestamp.toString();
         this.replyTo = replyToID;
         this.numOfLikes = likes;
         this.numOfReplies = replies;
+        this.iLiked = ILiked;
     }
 
     public Long getId() {
@@ -38,7 +40,7 @@ public class TweetDTO {
         return message;
     }
 
-    public Date getTimestamp() {
+    public String getTimestamp() {
         return timestamp;
     }
 
@@ -54,6 +56,10 @@ public class TweetDTO {
         return numOfReplies;
     }
 
+    public boolean getiLiked(){
+        return iLiked;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (o == this){return true;}
@@ -65,7 +71,8 @@ public class TweetDTO {
                 //tweet.timestamp.compareTo(this.timestamp) == 0 &&
                 tweet.replyTo.equals(this.replyTo) &&
                 tweet.numOfLikes == numOfLikes &&
-                tweet.numOfReplies == numOfReplies;
+                tweet.numOfReplies == numOfReplies &&
+                tweet.iLiked == iLiked;
     }
 
     @Override

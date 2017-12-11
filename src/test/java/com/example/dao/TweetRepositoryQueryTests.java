@@ -57,7 +57,7 @@ public class TweetRepositoryQueryTests {
 
     @Autowired
     private JpaUserRepository userRepository;
-
+    /*
     @Before
     public void init(){
         initUsers();
@@ -146,7 +146,7 @@ public class TweetRepositoryQueryTests {
 
     //Test Tweets By Users
     //TEST WITH VALID IDS
-
+    /*
     @Test
     public void testGetRecentTweetsByUsersWithAllValidIDs(){
         List<Long> ids = new ArrayList<>();
@@ -444,5 +444,5 @@ public class TweetRepositoryQueryTests {
         assertEquals(replies.size(), 0);
     }
 
-
+    */
 }

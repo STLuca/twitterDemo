@@ -12,16 +12,16 @@ import java.util.List;
 public interface TweetService {
 
 
-    TweetDTO getTweet(Long id);
+    CombinedDTO getTweet(Long id, Long myID);
     TweetDTO saveTweet(Long userID, String message);
     TweetDTO saveReplyTweet(Long userID, String message, Long replyToId);
     void deleteTweet(Long tweetID, Long userID);
 
-    CombinedDTO getLikedBy(Long tweetID);
+    CombinedDTO getLikedBy(Long tweetID, Long myID);
 
-    CombinedDTO getRecentTweetReplies(Long tweetID, boolean asc, int page, int count);
-    CombinedDTO getLikedTweetReplies(Long tweetID, boolean asc, int page, int count);
-    CombinedDTO getRepliedTweetReplies(Long tweetID, boolean asc, int page, int count);
+    CombinedDTO getRecentTweetReplies(Long tweetID, Long myID, boolean asc, int page, int count);
+    CombinedDTO getLikedTweetReplies(Long tweetID, Long myID, boolean asc, int page, int count);
+    CombinedDTO getRepliedTweetReplies(Long tweetID, Long myID, boolean asc, int page, int count);
 
 
 }

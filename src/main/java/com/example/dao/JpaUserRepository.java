@@ -19,13 +19,16 @@ public interface JpaUserRepository {
     void removeById(Long id);
     void removeByUser(User user);
 
-    List<UserDTO> getUserByUsername(String username);
-    List<UserDTO> getUsersByIDs(Set<Long> id);
+    List<UserDTO> getUserByUsername(String username, Long myID);
+    List<UserDTO> getUsersByIDs(Set<Long> id, Long myID);
 
-    List<UserDTO> getFollowersByUsername(String username, boolean old, int page, int count);
-    List<UserDTO> getFollowingByUsername(String username, boolean old, int page, int count);
-    List<UserDTO> getFollowersByID(Long id, boolean old, int page, int count);
-    List<UserDTO> getFollowingByID(Long id, boolean old, int page, int count);
+    void followUser(Long userID, Long myID);
+    void unfollowUser(Long userID, Long myID);
+
+    List<UserDTO> getFollowersByUsername(String username, Long myID, boolean old, int page, int count);
+    List<UserDTO> getFollowingByUsername(String username, Long myID, boolean old, int page, int count);
+    List<UserDTO> getFollowersByID(Long id, Long myID, boolean old, int page, int count);
+    List<UserDTO> getFollowingByID(Long id, Long myID, boolean old, int page, int count);
 
 
 

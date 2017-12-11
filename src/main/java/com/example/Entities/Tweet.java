@@ -17,7 +17,8 @@ import java.util.*;
                         @ColumnResult(name = "creationTS", type=Date.class),
                         @ColumnResult(name = "replyTo", type=Long.class),
                         @ColumnResult(name = "likes", type=Integer.class),
-                        @ColumnResult(name = "replies", type=Integer.class)
+                        @ColumnResult(name = "replies", type=Integer.class),
+                        @ColumnResult(name = "ILiked", type=boolean.class)
                 })
 })
 @Entity(name = "Tweet")

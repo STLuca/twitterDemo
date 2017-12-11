@@ -32,7 +32,7 @@ public class FeedController {
         return feedService.getRecentFeed(user.getUserID(), true, page, count);
     }
 
-    @GetMapping(value = "/liked/most/")
+    @GetMapping(value = "/liked/most")
     public CombinedDTO getMostLikedTweets(@AuthenticationPrincipal CustomUser user,
                                       @RequestParam(name = "t", required = false, defaultValue = "1") int dayLimit,
                                       @RequestParam(name = "page", required = false, defaultValue = "0") Integer page,
@@ -40,7 +40,7 @@ public class FeedController {
         return feedService.getLikedFeed(user.getUserID(), false, dayLimit, page, count);
     }
 
-    @GetMapping(value = "/liked/least/")
+    @GetMapping(value = "/liked/least")
     public CombinedDTO getLeastLikedTweets(@AuthenticationPrincipal CustomUser user,
                                       @RequestParam(name = "t", required = false, defaultValue = "1") int dayLimit,
                                       @RequestParam(name = "page", required = false, defaultValue = "0") Integer page,

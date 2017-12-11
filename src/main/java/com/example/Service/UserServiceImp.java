@@ -38,9 +38,9 @@ public class UserServiceImp implements UserService {
 
     //might have to pass in user, check if tweet owner allows user to view tweet
     @Override
-    public UserDTO getUser(String username){
+    public UserDTO getUser(String username, Long myID){
 
-        List<UserDTO> user = userRepository.getUserByUsername(username);
+        List<UserDTO> user = userRepository.getUserByUsername(username, myID);
         if (user.isEmpty()){
             throw new UserNotFoundException(username);
         } else {
@@ -69,73 +69,74 @@ public class UserServiceImp implements UserService {
     }
 
     @Override
-    public void followUser(Long userID, String followeeUsername){
+    public void followUser(Long myID, String followeeUsername){
 
-        User user = userRepository.findUserByID(userID);
-        User followee = userRepository.findByUsername(followeeUsername);
-        user.followUser(followee);
-
+        //User user = userRepository.findUserByID(userID);
+        //User followee = userRepository.findByUsername(followeeUsername);
+        //user.followUser(followee);
+        userRepository.followUser(userRepository.findByUsername(followeeUsername).getId(), myID);
     }
 
     @Override
-    public void unfollowUser(Long userID, String followeeUsername){
-        User user = userRepository.findUserByID(userID);
-        User followee = userRepository.findByUsername(followeeUsername);
-        user.unfollowUser(followee);
-
+    public void unfollowUser(Long myID, String followeeUsername){
+        //User user = userRepository.findUserByID(userID);
+        //User followee = userRepository.findByUsername(followeeUsername);
+        //user.unfollowUser(followee);
+        userRepository.unfollowUser(userRepository.findByUsername(followeeUsername).getId(), myID);
     }
 
     @Override
-    public CombinedDTO getFollowing(String username, boolean old, int page, int count) {
-        return CombinedDTO.createFromUsers(userRepository.getFollowingByUsername(username, old, page, count));
+    public CombinedDTO getFollowing(String username, Long myID, boolean old, int page, int count) {
+        return CombinedDTO.createFromUsers(userRepository.getFollowingByUsername(username, myID, old, page, count));
     }
 
     @Override
-    public CombinedDTO getFollowers(String username, boolean old, int page, int count) {
-        return CombinedDTO.createFromUsers(userRepository.getFollowersByUsername(username, old, page, count));
+    public CombinedDTO getFollowers(String username, Long myID, boolean old, int page, int count) {
+        return CombinedDTO.createFromUsers(userRepository.getFollowersByUsername(username, myID, old, page, count));
     }
 
     @Override
     public void likeTweet(Long userID, Long tweetID){
 
-        Tweet tweet = tweetRepository.findTweetByID(tweetID);
-        User user = userRepository.findUserByID(userID);
-        user.likeTweet(tweet);
-
+        //Tweet tweet = tweetRepository.findTweetByID(tweetID);
+        //User user = userRepository.findUserByID(userID);
+        //user.likeTweet(tweet);
+        tweetRepository.likeTweet(tweetID, userID, new Date());
     }
 
     @Override
     public void unlikeTweet(Long userID, Long tweetID){
-        Tweet tweet = tweetRepository.findTweetByID(tweetID);
-        User user = userRepository.findUserByID(userID);
-        user.unlikeTweet(tweet);
+        //Tweet tweet = tweetRepository.findTweetByID(tweetID);
+        //User user = userRepository.findUserByID(userID);
+        //user.unlikeTweet(tweet);
+        tweetRepository.unlikeTweet(tweetID, userID);
     }
 
 
     @Override
-    public CombinedDTO getRecentTweetsByUser(String username, boolean asc, int page, int count) {
+    public CombinedDTO getRecentTweetsByUser(String username, Long myID, boolean asc, int page, int count) {
         List<Long> userID = getUserIDFromUsernameAsList(username);
-        return CombinedDTO.createFromTweets(tweetRepository.getRecentTweetsByUsers(userID, asc, page, count));
+        return CombinedDTO.createFromTweets(tweetRepository.getRecentTweetsByUsers(userID, myID, asc, page, count));
     }
 
     @Override
-    public CombinedDTO getLikedTweetsByUser(String username, boolean asc, int withinDays, int page, int count) {
+    public CombinedDTO getLikedTweetsByUser(String username, Long myID, boolean asc, int withinDays, int page, int count) {
         Date date = timeVariant.getDateFromXDaysAgo(withinDays);
         List<Long> userID = getUserIDFromUsernameAsList(username);
-        return CombinedDTO.createFromTweets(tweetRepository.getLikedTweetsByUsers(userID, asc, date, page, count));
+        return CombinedDTO.createFromTweets(tweetRepository.getLikedTweetsByUsers(userID, myID, asc, date, page, count));
     }
 
     @Override
-    public CombinedDTO getRepliedTweetsByUser(String username, boolean asc, int withinDays, int page, int count) {
+    public CombinedDTO getRepliedTweetsByUser(String username, Long myID, boolean asc, int withinDays, int page, int count) {
         Date date = timeVariant.getDateFromXDaysAgo(withinDays);
         List<Long> userID = getUserIDFromUsernameAsList(username);
-        return CombinedDTO.createFromTweets(tweetRepository.getRepliedTweetsByUsers(userID, asc, date, page, count));
+        return CombinedDTO.createFromTweets(tweetRepository.getRepliedTweetsByUsers(userID, myID, asc, date, page, count));
     }
 
     @Override
-    public CombinedDTO getUserLikes(String username, boolean old, int page, int count) {
+    public CombinedDTO getUserLikes(String username, Long myID, boolean old, int page, int count) {
         List<Long> userID = getUserIDFromUsernameAsList(username);
-        return CombinedDTO.createFromTweets(tweetRepository.getUsersLikedTweets(userID, old, page, count));
+        return CombinedDTO.createFromTweets(tweetRepository.getUsersLikedTweets(userID, myID, old, page, count));
     }
 
     private List<Long> getUserIDFromUsernameAsList(String username){

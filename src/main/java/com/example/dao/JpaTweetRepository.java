@@ -16,14 +16,17 @@ public interface JpaTweetRepository {
     void update(Tweet tweet);
     void delete(Tweet tweet);
 
-    List<TweetDTO> getTweet(Long tweetID);
+    List<TweetDTO> getTweet(Long tweetID, Long myID);
 
-    List<TweetDTO> getRecentTweetsByUsers(List<Long> userIDs, boolean asc, int page, int count);
-    List<TweetDTO> getLikedTweetsByUsers(List<Long> userIDs, boolean asc, Date withinDate, int page, int count);
-    List<TweetDTO> getRepliedTweetsByUsers(List<Long> userIDs, boolean asc, Date withinDate, int page, int count);
-    List<TweetDTO> getUsersLikedTweets(List<Long> userIDs, boolean old, int page, int count);
+    void likeTweet(Long tweetID, Long myID, Date date);
+    void unlikeTweet(Long tweetID, Long myID);
 
-    List<TweetDTO> getRecentTweetReplies(Long tweetID, boolean asc, int page, int count);
-    List<TweetDTO> getLikedTweetReplies(Long tweetID, boolean asc, int page, int count);
-    List<TweetDTO> getRepliedTweetReplies(Long tweetID, boolean asc, int page, int count);
+    List<TweetDTO> getRecentTweetsByUsers(List<Long> userIDs, Long myID, boolean asc, int page, int count);
+    List<TweetDTO> getLikedTweetsByUsers(List<Long> userIDs, Long myID, boolean asc, Date withinDate, int page, int count);
+    List<TweetDTO> getRepliedTweetsByUsers(List<Long> userIDs, Long myID, boolean asc, Date withinDate, int page, int count);
+    List<TweetDTO> getUsersLikedTweets(List<Long> userIDs, Long myID, boolean old, int page, int count);
+
+    List<TweetDTO> getRecentTweetReplies(Long tweetID, Long myID, boolean asc, int page, int count);
+    List<TweetDTO> getLikedTweetReplies(Long tweetID, Long myID, boolean asc, int page, int count);
+    List<TweetDTO> getRepliedTweetReplies(Long tweetID, Long myID, boolean asc, int page, int count);
 }
